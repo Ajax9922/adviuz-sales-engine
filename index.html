@@ -55,22 +55,35 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
 
     <script type="text/babel">
-      const { useState, useEffect } = React;
+      const { useState, useEffect, useMemo } = React;
       
       // ==========================================
       // ADVIUZ ENGINE CONFIGURATION
       const SUPABASE_URL = 'https://zkqusvcjxwzcvzhmhwau.supabase.co';
       const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprcXVzdmNqeHd6Y3Z6aG1od2F1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNTkxMzIsImV4cCI6MjA5MjYzNTEzMn0.41cvwkL8UIAn5YUB_XDPXGV_6q-QicibGfuW_P_fHoo';
-      // Use a distinct name for the client to avoid library conflicts
-      const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
       // ==========================================
 
-      const Icon = ({ name, size = 20, className = "" }) => {
-        useEffect(() => { lucide.createIcons(); }, [name]);
-        return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+      const SvgIcon = ({ name, size = 20, className = "" }) => {
+        const icons = {
+          bot: <path d="M12 8V4m0 4a4 4 0 100 8 4 4 0 000-8zM2 11h3m14 0h3M7 22l2-3m8 3l-2-3" stroke="currentColor" strokeWidth="2" fill="none" />,
+          refresh: <path d="M21 12a9 9 0 11-9-9c2.52 0 4.85.83 6.72 2.24L21 8m0-5v5h-5" stroke="currentColor" strokeWidth="2" fill="none" />,
+          chevron: <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+          phone: <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" stroke="currentColor" strokeWidth="2" fill="none" />,
+          message: <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" strokeWidth="2" fill="none" />,
+          chart: <path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" strokeWidth="2" fill="none" />,
+          user: <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 7a4 4 0 110-8 4 4 0 010 8z" stroke="currentColor" strokeWidth="2" fill="none" />,
+          check: <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" fill="none" />,
+          logout: <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="2" fill="none" />,
+          list: <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" strokeWidth="2" fill="none" />
+        };
+
+        return (
+          <svg width={size} height={size} viewBox="0 0 24 24" className={className} xmlns="http://www.w3.org/2000/svg">
+            {icons[name] || null}
+          </svg>
+        );
       };
 
       function App() {
@@ -80,6 +93,16 @@
         const [leads, setLeads] = useState([]);
         const [loading, setLoading] = useState(false);
         const [toast, setToast] = useState('');
+
+        // Diagnostic Check
+        const db = useMemo(() => {
+          if (typeof window.supabase === 'undefined') {
+            console.error("Supabase library failed to load from CDN.");
+            return null;
+          }
+          console.log("Database initialized with provided URL.");
+          return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }, []);
 
         useEffect(() => {
           const loader = document.getElementById('loading-screen');
@@ -95,25 +118,38 @@
         }, []);
 
         useEffect(() => {
-          if (session) fetchLeads();
-        }, [session]);
+          if (session && db) fetchLeads();
+        }, [session, db]);
 
         const fetchLeads = async () => {
-          if (!session) return;
+          if (!session || !db) return;
           setLoading(true);
-          const { data, error } = await db
-              .from('leads')
-              .select('*')
-              .eq('campaign_id', session.campaign_id)
-              .order('created_at', { ascending: false });
-          if (!error && data) setLeads(data);
+          try {
+            const { data, error } = await db
+                .from('leads')
+                .select('*')
+                .eq('campaign_id', session.campaign_id)
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            if (data) setLeads(data);
+          } catch (e) { 
+            console.error("Fetch Leads Error:", e.message);
+            showToast("Sync Error");
+          }
           setLoading(false);
         };
 
         const updateLeadStage = async (id, newStage) => {
-          setLeads(leads.map(l => l.id === id ? { ...l, stage: newStage } : l));
-          await db.from('leads').update({ stage: newStage }).eq('id', id);
-          showToast('Stage Updated');
+          if (!db) return;
+          try {
+            setLeads(leads.map(l => l.id === id ? { ...l, stage: newStage } : l));
+            const { error } = await db.from('leads').update({ stage: newStage }).eq('id', id);
+            if (error) throw error;
+            showToast('Stage Updated');
+          } catch (e) {
+            console.error("Update Error:", e.message);
+            showToast("Update Failed");
+          }
         };
 
         const showToast = (msg) => {
@@ -129,7 +165,7 @@
         const LoginScreen = () => {
           const [email, setEmail] = useState('');
           const [pin, setPin] = useState('');
-          const [step, setStep] = useState('email'); // 'email' or 'pin'
+          const [step, setStep] = useState('email'); 
           const [error, setError] = useState('');
           const [isProcessing, setIsProcessing] = useState(false);
 
@@ -139,24 +175,32 @@
             setIsProcessing(true);
             
             try {
-              // 1. Check if email exists in database
+              if (!db) throw new Error("Database client not initialized");
+              
               const { data, error: dbError } = await db
                 .from('clients')
                 .select('email')
                 .eq('email', email.toLowerCase().trim())
                 .single();
 
-              if (dbError || !data) {
+              if (dbError) {
+                // Supabase error code for "no rows found" is PGRST116
+                if (dbError.code === 'PGRST116') {
+                   setError('Access Denied. Email not found.');
+                } else {
+                   setError(`Database Error: ${dbError.message}`);
+                }
+              } else if (!data) {
                 setError('Access Denied. Email not found.');
               } else {
-                // In a production app, here you would trigger the PIN email.
-                // For now, we move to the PIN entry step.
                 setStep('pin');
               }
             } catch (err) {
-              setError('Connection error. Please try again.');
+              setError(`Connection Error: ${err.message}`);
+              console.error("Login Step 1 Error:", err);
+            } finally {
+              setIsProcessing(false);
             }
-            setIsProcessing(false);
           };
 
           const handlePinSubmit = async (e) => {
@@ -164,6 +208,7 @@
             setError('');
             setIsProcessing(true);
             try {
+              if (!db) throw new Error("Database client not initialized");
               const { data, error: dbError } = await db
                 .from('clients')
                 .select('*')
@@ -178,22 +223,24 @@
                 setSession(data);
               }
             } catch (err) {
-              setError('Authentication failed.');
+              setError(`Auth Error: ${err.message}`);
+              console.error("Login Step 2 Error:", err);
+            } finally {
+              setIsProcessing(false);
             }
-            setIsProcessing(false);
           };
 
           return (
             <div className="min-h-screen bg-slate-900 flex flex-col justify-center px-6 font-sans">
               <div className="w-full max-w-sm mx-auto">
                 <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center shadow-2xl mb-8 mx-auto rotate-3">
-                  <Icon name="bot" size={48} className="text-slate-900" />
+                  <SvgIcon name="bot" size={48} className="text-slate-900" />
                 </div>
                 <h2 className="text-center text-3xl font-black text-white tracking-tight leading-tight uppercase italic mb-10">Adviuz AI<br/>Sales Engine</h2>
                 
-                <div className="bg-white p-8 shadow-2xl rounded-[2.5rem] border border-slate-100 fade-in">
+                <div className="bg-white p-8 shadow-2xl rounded-[2.5rem] border border-slate-100">
                   {step === 'email' ? (
-                    <form onSubmit={handleEmailSubmit} className="space-y-6">
+                    <form onSubmit={handleEmailSubmit} className="space-y-6 fade-in">
                       <p className="text-slate-500 text-center text-sm font-medium">Enter your email to receive a secure access PIN.</p>
                       {error && <div className="text-rose-600 text-xs font-bold bg-rose-50 p-4 rounded-2xl text-center border border-rose-100">{error}</div>}
                       <div>
@@ -206,13 +253,13 @@
                         />
                       </div>
                       <button type="submit" disabled={isProcessing} className="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-slate-800 active:scale-95 transition-all flex justify-center items-center gap-3">
-                        {isProcessing ? <Icon name="refresh-ccw" className="animate-spin" size={20}/> : 'Request PIN'}
+                        {isProcessing ? <SvgIcon name="refresh" className="animate-spin" size={20}/> : 'Request PIN'}
                       </button>
                     </form>
                   ) : (
-                    <form onSubmit={handlePinSubmit} className="space-y-6">
+                    <form onSubmit={handlePinSubmit} className="space-y-6 fade-in">
                       <div className="text-center">
-                        <p className="text-slate-500 text-sm font-medium">PIN sent to <strong>{email}</strong></p>
+                        <p className="text-slate-500 text-sm font-medium">Checking PIN for <strong>{email}</strong></p>
                         <button type="button" onClick={() => setStep('email')} className="text-indigo-600 text-[10px] font-black uppercase mt-1">Change Email</button>
                       </div>
                       {error && <div className="text-rose-600 text-xs font-bold bg-rose-50 p-4 rounded-2xl text-center border border-rose-100">{error}</div>}
@@ -228,7 +275,7 @@
                         />
                       </div>
                       <button type="submit" disabled={isProcessing} className="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-slate-800 active:scale-95 transition-all flex justify-center items-center gap-3">
-                        {isProcessing ? <Icon name="refresh-ccw" className="animate-spin" size={20}/> : 'Verify & Launch'}
+                        {isProcessing ? <SvgIcon name="refresh" className="animate-spin" size={20}/> : 'Verify & Launch'}
                       </button>
                     </form>
                   )}
@@ -246,7 +293,7 @@
             <div className="fixed inset-0 bg-white z-50 flex flex-col font-sans overflow-hidden">
               <div className="h-16 bg-white border-b border-slate-100 flex items-center px-6 shrink-0 sticky top-0">
                 <button onClick={() => setSelectedLead(null)} className="p-2 -ml-4 text-slate-900 flex items-center gap-1">
-                  <Icon name="chevron-left" size={24} className="stroke-[3px]" /> <span className="font-black text-xs uppercase tracking-wider">Back</span>
+                  <SvgIcon name="chevron" size={24} className="stroke-[3px]" /> <span className="font-black text-xs uppercase tracking-wider">Back</span>
                 </button>
                 <div className="mx-auto font-black text-slate-900 text-sm tracking-tight truncate px-4 uppercase">{selectedLead.name}</div>
                 <div className="w-10"></div>
@@ -261,10 +308,10 @@
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <button onClick={()=>window.location.href=`tel:${selectedLead.phone}`} className="bg-emerald-500 text-white p-5 rounded-3xl shadow-lg flex flex-col items-center justify-center gap-2 active:scale-95 transition">
-                    <Icon name="phone" size={24} /> <span className="text-xs font-black uppercase">Call</span>
+                    <SvgIcon name="phone" size={24} /> <span className="text-xs font-black uppercase">Call</span>
                   </button>
                   <button onClick={()=>window.location.href=`sms:${selectedLead.phone}`} className="bg-blue-500 text-white p-5 rounded-3xl shadow-lg flex flex-col items-center justify-center gap-2 active:scale-95 transition">
-                    <Icon name="message-square" size={24} /> <span className="text-xs font-black uppercase">SMS</span>
+                    <SvgIcon name="message" size={24} /> <span className="text-xs font-black uppercase">SMS</span>
                   </button>
                 </div>
                 <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-5">
@@ -296,11 +343,11 @@
           <div className="h-screen w-full flex flex-col bg-slate-50 font-sans overflow-hidden">
             <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-6 shrink-0 shadow-sm z-10 sticky top-0">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg"><Icon name="bot" size={20} className="text-white"/></div>
+                <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg"><SvgIcon name="bot" size={20} className="text-white"/></div>
                 <h1 className="font-black text-slate-900 text-xl tracking-tighter uppercase">ADVIUZ</h1>
               </div>
               <button onClick={fetchLeads} className="p-2 text-slate-400 active:text-slate-900 transition-all">
-                <Icon name="refresh-ccw" size={20} className={loading?'animate-spin':''}/>
+                <SvgIcon name="refresh" size={20} className={loading?'animate-spin':''}/>
               </button>
             </header>
             <div className="flex-1 overflow-y-auto pb-32">
@@ -341,7 +388,7 @@
                         <p className="text-6xl font-black tracking-tighter">124,592</p>
                         <p className="text-emerald-400 text-xs font-bold mt-2">+1.2k Active Now</p>
                       </div>
-                      <Icon name="bar-chart-2" size={160} className="absolute -bottom-8 -right-8 text-white opacity-5 rotate-12" />
+                      <SvgIcon name="chart" size={160} className="absolute -bottom-8 -right-8 text-white opacity-5 rotate-12" />
                    </div>
                 </div>
               )}
@@ -350,12 +397,12 @@
                   <h2 className="text-2xl font-black text-slate-900 tracking-tight">Account</h2>
                   <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 text-center">
                     <div className="w-24 h-24 bg-slate-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-inner border-4 border-white">
-                      <Icon name="user" size={40} className="text-slate-300"/>
+                      <SvgIcon name="user" size={40} className="text-slate-300"/>
                     </div>
                     <h3 className="text-xl font-black text-slate-900 tracking-tight">{session.email}</h3>
                     <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] mt-2 mb-8">{session.campaign_id}</p>
                     <button onClick={handleLogout} className="w-full bg-rose-50 text-rose-600 font-black py-5 rounded-2xl flex justify-center items-center gap-2 active:bg-rose-100 transition shadow-sm">
-                      <Icon name="log-out" size={20} className="stroke-[3px]"/> Secure Log Out
+                      <SvgIcon name="logout" size={20} /> Secure Log Out
                     </button>
                   </div>
                 </div>
@@ -364,22 +411,22 @@
             <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-100 pb-10 z-40">
               <div className="flex justify-around items-center h-20 px-4">
                 <button onClick={() => setActiveTab('leads')} className={`flex flex-col items-center gap-1.5 transition-all ${activeTab === 'leads' ? 'text-slate-900 scale-110' : 'text-slate-300'}`}>
-                  <Icon name="list-todo" size={24} className={activeTab === 'leads' ? 'stroke-[3px]' : ''} />
+                  <SvgIcon name="list" size={24} className={activeTab === 'leads' ? 'stroke-[2px]' : ''} />
                   <span className="text-[9px] font-black uppercase tracking-widest">Leads</span>
                 </button>
                 <button onClick={() => setActiveTab('analytics')} className={`flex flex-col items-center gap-1.5 transition-all ${activeTab === 'analytics' ? 'text-slate-900 scale-110' : 'text-slate-300'}`}>
-                  <Icon name="bar-chart-2" size={24} className={activeTab === 'analytics' ? 'stroke-[3px]' : ''} />
+                  <SvgIcon name="chart" size={24} className={activeTab === 'analytics' ? 'stroke-[2px]' : ''} />
                   <span className="text-[9px] font-black uppercase tracking-widest">Traffic</span>
                 </button>
                 <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1.5 transition-all ${activeTab === 'profile' ? 'text-slate-900 scale-110' : 'text-slate-300'}`}>
-                  <Icon name="user" size={24} className={activeTab === 'profile' ? 'stroke-[3px]' : ''} />
+                  <SvgIcon name="user" size={24} className={activeTab === 'profile' ? 'stroke-[2px]' : ''} />
                   <span className="text-[9px] font-black uppercase tracking-widest">Profile</span>
                 </button>
               </div>
             </nav>
             {toast && (
               <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl z-50 text-[10px] font-black uppercase tracking-widest animate-in fade-in slide-in-from-top-4 flex items-center gap-3 border border-slate-700">
-                <Icon name="check-circle" size={14} className="text-emerald-400"/> {toast}
+                <SvgIcon name="check" size={14} className="text-emerald-400"/> {toast}
               </div>
             )}
           </div>
