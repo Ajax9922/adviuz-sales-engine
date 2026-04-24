@@ -11,7 +11,7 @@ import {
 // ADVIUZ ENGINE CONFIGURATION
 // Keys successfully updated from your Supabase Project
 const SUPABASE_URL = 'https://zkqusvcjxwzcvzhmhwau.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_fqaylK1b2bsTcpdZxWLRrA_DcSWfaD2';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprcXVzdmNqeHd6Y3Z6aG1od2F1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNTkxMzIsImV4cCI6MjA5MjYzNTEzMn0.41cvwkL8UIAn5YUB_XDPXGV_6q-QicibGfuW_P_fHoo';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 // ==========================================
 
