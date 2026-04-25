@@ -3,60 +3,56 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Adviuz Master Admin</title>
+    <title>Adviuz Admin | Master Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; -webkit-tap-highlight-color: transparent; }
         
-        /* Dashboard Tables & Cards */
+        /* Table Styles */
         .table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; padding: 14px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-weight: 700; white-space: nowrap; }
         td { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; font-size: 13px; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background-color: #f8fafc; }
         
+        /* Mobile Cards */
         .mobile-card { background: white; border-radius: 16px; padding: 16px; border: 1px solid #e2e8f0; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         
-        /* Modal & Slide-over */
+        /* Modals & Panels */
         .overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 100; display: flex; justify-content: flex-end; }
         .overlay-center { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 100; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .slide-panel { background: white; width: 100%; max-width: 500px; height: 100%; padding: 32px; box-shadow: -10px 0 40px rgba(0,0,0,0.1); animation: slideIn 0.3s ease-out; overflow-y: auto; }
-        .modal-panel { background: white; width: 100%; max-width: 800px; border-radius: 24px; padding: 0; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: fadeIn 0.2s ease-out; overflow: hidden; display: flex; max-height: 90vh; }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-        /* Form Inputs */
+        /* Form Controls */
         .input-group { margin-bottom: 16px; }
-        .input-label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 6px; }
+        .input-label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 6px; }
         .input-field { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; transition: all 0.2s; background: #f8fafc; }
         .input-field:focus { border-color: #2563eb; background: white; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         
-        /* AI Studio iPhone Preview */
+        /* iPhone Simulation */
         .iphone-frame { width: 280px; height: 580px; border: 10px solid #0f172a; border-radius: 36px; position: relative; background: white; overflow: hidden; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2); flex-shrink: 0; }
         .iphone-notch { width: 100px; height: 18px; background: #0f172a; position: absolute; top: 0; left: 50%; transform: translateX(-50%); border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; z-index: 40; }
-        .ad-preview-scroll { height: 100%; overflow-y: auto; padding-top: 30px; }
         .timer-bar-preview { height: 4px; background: #e2e8f0; width: 100%; position: absolute; top: 0; left: 0; z-index: 30; }
-        .timer-progress-fill { height: 100%; width: 45%; transition: width 1s linear; background-color: #2563eb; }
-        .preview-form-input { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 11px; background: #f8fafc; margin-bottom: 8px; color: #64748b; }
+        .timer-progress-fill { height: 100%; width: 0%; transition: width 1s linear; background-color: #2563eb; }
+        .ad-preview-scroll { height: 100%; overflow-y: auto; padding-top: 30px; }
         
-        /* AI Chat UI */
-        .chat-bubble-user { background-color: #2563eb; color: white; border-radius: 16px 16px 4px 16px; padding: 12px 16px; align-self: flex-end; max-width: 85%; font-size: 13px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1); }
-        .chat-bubble-ai { background-color: white; color: #1e293b; border-radius: 16px 16px 16px 4px; padding: 12px 16px; align-self: flex-start; max-width: 85%; font-size: 13px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .ai-loading-dots { display: flex; gap: 6px; padding: 12px 16px; background: white; border-radius: 16px 16px 16px 4px; border: 1px solid #e2e8f0; align-self: flex-start; }
+        /* AI Studio Chat */
+        .chat-bubble-user { background-color: #2563eb; color: white; border-radius: 16px 16px 4px 16px; padding: 12px 16px; align-self: flex-end; max-width: 85%; font-size: 13px; }
+        .chat-bubble-ai { background-color: white; color: #1e293b; border-radius: 16px 16px 16px 4px; padding: 12px 16px; align-self: flex-start; max-width: 85%; font-size: 13px; border: 1px solid #e2e8f0; }
+        .ai-loading-dots { display: flex; gap: 4px; padding: 8px; }
         .dot { width: 6px; height: 6px; background: #94a3b8; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
-        
+
+        /* Toggle */
+        .toggle-switch { position: relative; display: inline-flex; height: 20px; width: 36px; align-items: center; border-radius: 9999px; transition: background-color 0.2s; cursor: pointer; background-color: #cbd5e1; }
+        .toggle-switch[data-state="active"] { background-color: #10b981; }
+        .toggle-thumb { display: inline-block; height: 16px; width: 16px; transform: translateX(2px); border-radius: 9999px; background-color: white; transition: transform 0.2s; }
+        .toggle-switch[data-state="active"] .toggle-thumb { transform: translateX(18px); }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .animate-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        /* Toggle Switch */
-        .toggle-switch { position: relative; display: inline-flex; height: 20px; width: 36px; align-items: center; border-radius: 9999px; transition: background-color 0.2s; cursor: pointer; }
-        .toggle-switch[data-state="active"] { background-color: #10b981; }
-        .toggle-switch[data-state="paused"] { background-color: #cbd5e1; }
-        .toggle-thumb { display: inline-block; height: 16px; width: 16px; transform: translateX(2px); border-radius: 9999px; background-color: white; transition: transform 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .toggle-switch[data-state="active"] .toggle-thumb { transform: translateX(18px); }
     </style>
 </head>
 <body>
@@ -69,99 +65,46 @@
     <script type="text/babel">
         const { useState, useMemo, useEffect, useRef } = React;
 
-        const apiKey = ""; // API Key provided by execution environment
+        const apiKey = "AIzaSyDlyodQmaASdAiCEJTaQYryhbuGhvzl524"; 
 
-        // --- MOCK DATA ---
+        // --- MOCK INITIAL DATA ---
         const INITIAL_CAMPAIGNS = [
-            { id: 'c1', campaign_id: 'DENT_01', name: 'Summer Laser Promo', client: 'Pure Skin Clinic', region: 'West', status: 'Active', type: 'Views', allotted: 10000, consumed: 8500, fb_impressions: 45000, leadsGenerated: 42, leadsProcess: 12, leadsClosed: 25, leadsDisqualified: 5 },
-            { id: 'c2', campaign_id: 'DENT_02', name: 'Implant Consultation', client: 'City Center Dental', region: 'East', status: 'Active', type: 'Leads', allotted: 50, consumed: 12, fb_impressions: 12000, leadsGenerated: 48, leadsProcess: 8, leadsClosed: 30, leadsDisqualified: 10 },
-            { id: 'c3', campaign_id: 'ROOF_01', name: 'Roofing Estimates', client: 'Elite Roofing', region: 'East', status: 'Paused', type: 'Leads', allotted: 100, consumed: 0, fb_impressions: 0, leadsGenerated: 0, leadsProcess: 0, leadsClosed: 0, leadsDisqualified: 0 },
-            { id: 'c4', campaign_id: 'SPA_01', name: 'Botox Special', client: 'Lux MedSpa', region: 'West', status: 'Paused', type: 'Views', allotted: 50000, consumed: 50000, fb_impressions: 120000, leadsGenerated: 200, leadsProcess: 40, leadsClosed: 140, leadsDisqualified: 20 }
-        ];
-
-        const INITIAL_LEADS = [
-            { id: 'l1', name: 'Michael Chen', phone: '(416) 555-0198', email: 'm.chen@example.com', campaign: 'Summer Laser Promo', client: 'Pure Skin Clinic', date: 'Just now', status: 'New' },
-            { id: 'l2', name: 'Sarah Jenkins', phone: '(604) 555-8821', email: 'sarah.j@outlook.com', campaign: 'Implant Consultation', client: 'City Center Dental', date: '2 hours ago', status: 'Contacted' },
-            { id: 'l3', name: 'David Ross', phone: '(403) 555-3312', email: 'dross88@gmail.com', campaign: 'Roofing Estimates', client: 'Elite Roofing', date: 'Yesterday', status: 'Closed Won' }
+            { id: 'c1', name: 'Summer Laser Promo', client: 'Pure Skin Clinic', status: 'Active', type: 'Views', allotted: 10000, consumed: 8500, leadsGenerated: 42 },
+            { id: 'c2', name: 'Implant Consultation', client: 'City Dental', status: 'Active', type: 'Leads', allotted: 50, consumed: 12, leadsGenerated: 12 }
         ];
 
         const INITIAL_USERS = [
-            { id: 'u1', name: 'Dr. Amanda West', email: 'admin@pureskin.com', client: 'Pure Skin Clinic', role: 'Store Manager', status: 'Active' },
-            { id: 'u2', name: 'James Taylor', email: 'marketing@citydental.com', client: 'City Center Dental', role: 'Store Manager', status: 'Pending' },
-            { id: 'u3', name: 'Robert Ford', email: 'robert@eliteroofing.ca', client: 'Elite Roofing', role: 'Store Manager', status: 'Active' }
+            { id: 'u1', name: 'Dr. West', email: 'west@pureskin.com', client: 'Pure Skin Clinic', role: 'Store Manager' },
+            { id: 'u2', name: 'James T', email: 'james@citydental.com', client: 'City Dental', role: 'HQ Admin' }
         ];
 
         const INITIAL_LOGS = [
-            { id: 'l1', timestamp: new Date(Date.now() - 1000 * 60 * 5), tag: 'Campaign', message: 'Campaign "Roofing Estimates" paused by Master Admin.', client: 'Elite Roofing' },
-            { id: 'l2', timestamp: new Date(Date.now() - 1000 * 60 * 45), tag: 'Lead', message: '5 new leads captured for City Center Dental today.', client: 'City Center Dental' },
-            { id: 'l3', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), tag: 'Billing', message: 'Lead allotted limit (50/50) nearing completion.', client: 'City Center Dental' },
-            { id: 'l4', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), tag: 'System', message: 'Master Admin logged in from IP 192.168.1.1', client: 'System' },
-            { id: 'l5', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48), tag: 'Campaign', message: 'Campaign "Summer Laser Promo" created.', client: 'Pure Skin Clinic' },
+            { id: 'l1', tag: 'System', message: 'Admin login detected', client: 'System', time: new Date() }
         ];
 
-        // --- ICONS ---
         function SvgIcon({ name, size = 18, className = "" }) {
             const icons = {
-                LayoutGrid: <path d="M3 3h7v7H3V3zm11 0h7v7h-7V3zm0 11h7v7h-7v-7zM3 14h7v7H3v-7z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Activity: <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+                Grid: <path d="M3 3h7v7H3V3zm11 0h7v7h-7V3zm0 11h7v7h-7v-7zM3 14h7v7H3v-7z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
                 Plus: <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                X: <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Search: <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Edit: <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Eye: <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                LogOut: <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Filter: <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Users: <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+                Activity: <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+                Users: <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
                 List: <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Bot: <path d="M12 2a2 2 0 012 2v2a2 2 0 01-2 2 2 2 0 01-2-2V4a2 2 0 012-2zM4 9a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V9zm5 4h.01M15 13h.01" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
                 Send: <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                ChevronRight: <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Image: <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Upload: <path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Phone: <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Mail: <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Zap: <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Cpu: <path d="M4 4h16v16H4V4zm5 0V2m6 2V2M4 9H2m2 6H2m18-6h2m-2 6h2M9 22v-2m6 2v-2" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                AdviuzLogo: (
+                X: <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+                ChevronLeft: <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+                Adviuz: (
                     <g>
-                        <rect width="24" height="24" rx="6" fill="url(#adviuzGrad)" />
+                        <rect width="24" height="24" rx="6" fill="url(#grad1)" />
                         <path d="M12 4L5 19H8.5L12 11L15.5 19H19L12 4Z" fill="white" />
-                        <polygon points="12,11 9.5,16 14.5,16" fill="#60A5FA" opacity="0.9" />
-                        <defs>
-                            <linearGradient id="adviuzGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                                <stop stopColor="#2563EB" /><stop offset="1" stopColor="#0F172A" />
-                            </linearGradient>
-                        </defs>
+                        <defs><linearGradient id="grad1"><stop stopColor="#2563EB"/><stop offset="1" stopColor="#0F172A"/></linearGradient></defs>
                     </g>
                 )
             };
             return <svg width={size} height={size} viewBox="0 0 24 24" className={className}>{icons[name] || null}</svg>;
         }
 
-        // --- COMPONENTS ---
-        const StatusBadge = ({ status }) => {
-            const isActive = status === 'Active';
-            return (
-                <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest ${isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
-                    {status}
-                </span>
-            );
-        };
-
-        const LogBadge = ({ tag }) => {
-            const colors = {
-                'Campaign': 'bg-blue-100 text-blue-700 border-blue-200',
-                'Lead': 'bg-emerald-100 text-emerald-700 border-emerald-200',
-                'System': 'bg-slate-100 text-slate-700 border-slate-200',
-                'Billing': 'bg-amber-100 text-amber-700 border-amber-200'
-            };
-            const c = colors[tag] || colors['System'];
-            return <span className={`px-2 py-0.5 border rounded text-[9px] font-bold uppercase tracking-wider ${c}`}>{tag}</span>;
-        }
-
         const ProgressBar = ({ consumed, allotted, type }) => {
             const pct = Math.min(100, Math.round((consumed / allotted) * 100)) || 0;
-            const isDanger = pct > 90;
             return (
                 <div className="w-full">
                     <div className="flex justify-between text-[10px] font-bold text-slate-500 mb-1">
@@ -169,679 +112,213 @@
                         <span>{allotted.toLocaleString()} {type}</span>
                     </div>
                     <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full ${isDanger ? 'bg-rose-500' : 'bg-blue-500'}`} style={{width: `${pct}%`}}></div>
+                        <div className="h-full bg-blue-500" style={{width: `${pct}%`}}></div>
                     </div>
                 </div>
             );
         };
 
-        // --- MAIN APP ---
         function AdminApp() {
-            // Auth & Role State
-            const [sessionRole, setSessionRole] = useState(null); // 'CEO', 'Manager'
-            const [sessionStore, setSessionStore] = useState(null); // e.g. 'DENT_01'
+            const [isLoggedIn, setIsLoggedIn] = useState(false);
             const [pin, setPin] = useState('');
-            
-            // Global Navigation
-            const [activeTab, setActiveTab] = useState('campaigns'); // 'campaigns', 'leads', 'users', 'logs'
+            const [activeTab, setActiveTab] = useState('campaigns');
             const [view, setView] = useState('dashboard'); // 'dashboard', 'studio'
             
-            // Modals
-            const [showCreateModal, setShowCreateModal] = useState(false);
-            const [showUserModal, setShowUserModal] = useState(false);
-            const [selectedCampaign, setSelectedCampaign] = useState(null);
-            const [editingAd, setEditingAd] = useState(null); 
-            const [previewAd, setPreviewAd] = useState(null); 
-
-            // Mutable Data
             const [campaigns, setCampaigns] = useState(INITIAL_CAMPAIGNS);
             const [users, setUsers] = useState(INITIAL_USERS);
-            const [leads, setLeads] = useState(INITIAL_LEADS);
             const [logs, setLogs] = useState(INITIAL_LOGS);
 
-            // Form States
-            const [newCamp, setNewCamp] = useState({ client: '', name: '', type: 'Views', allotted: 5000 });
-            const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Store Manager', client: '' });
-            const [editForm, setEditForm] = useState(null);
-
-            // Filters
+            const [showCreateModal, setShowCreateModal] = useState(false);
+            const [showUserModal, setShowUserModal] = useState(false);
+            const [newAd, setNewAd] = useState({ client: '', name: '', allotted: 5000, type: 'Views' });
+            const [newUser, setNewUser] = useState({ name: '', email: '', client: '', role: 'Store Manager' });
+            
+            const [selectedCampaign, setSelectedCampaign] = useState(null);
             const [searchQuery, setSearchQuery] = useState('');
-            const [statusFilter, setStatusFilter] = useState('All');
-            const [regionFilter, setRegionFilter] = useState('All');
-            const [typeFilter, setTypeFilter] = useState('All');
-            const [sortBy, setSortBy] = useState('name-az');
-            const [logTagFilter, setLogTagFilter] = useState('All');
 
-            // AI Studio State
-            const [selectedModel, setSelectedModel] = useState('Gemini');
+            // AI Studio & Preview State
+            const [config, setConfig] = useState({ 
+                headline: 'Exclusive Offer', subtext: 'Claim your limited-time discount now.', 
+                color: '#2563eb', timer: 25, cta: 'Claim Offer',
+                img: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600'
+            });
+            const [previewTime, setPreviewTime] = useState(25);
             const [chatHistory, setChatHistory] = useState([]);
-            const [userInput, setUserInput] = useState("");
             const [isAiThinking, setIsAiThinking] = useState(false);
             const chatEndRef = useRef(null);
-            const logoInputRef = useRef(null);
-            const mainImgInputRef = useRef(null);
-            
-            const [config, setConfig] = useState({
-                logo: '', brandColor: '#2563eb', headline: 'Loading...', subtext: 'Loading...',
-                cta: 'Claim Offer', phone: '1-800-555-0199', timer: 25,
-                mainImg: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600&q=80',
-                customFields: [], isGeneratingImg: false
-            });
 
-            // --- LIVE PREVIEW TIMER STATE ---
-            const [previewTime, setPreviewTime] = useState(25);
-            const [previewUnlocked, setPreviewUnlocked] = useState(false);
-
-            // Reset timer when opening a preview or entering studio
-            useEffect(() => {
-                if (view === 'studio' || previewAd || editingAd) {
-                    setPreviewTime(config.timer || 25);
-                    setPreviewUnlocked(false);
-                }
-            }, [view, previewAd, editingAd, selectedCampaign]);
-
-            // Live Timer Countdown Logic
+            // Timer Logic for iPhone Preview
             useEffect(() => {
                 let interval;
-                if ((view === 'studio' || previewAd || editingAd) && previewTime > 0) {
-                    interval = setInterval(() => {
-                        setPreviewTime(prev => {
-                            if (prev <= 1) {
-                                setPreviewUnlocked(true);
-                                return 0;
-                            }
-                            return prev - 1;
-                        });
-                    }, 1000);
-                } else if (previewTime <= 0) {
-                    setPreviewUnlocked(true);
+                if (view === 'studio' && previewTime > 0) {
+                    interval = setInterval(() => setPreviewTime(prev => prev - 1), 1000);
                 }
                 return () => clearInterval(interval);
-            }, [view, previewAd, editingAd, previewTime]);
+            }, [view, previewTime]);
 
-            // Re-initialize AI Studio when opened
-            useEffect(() => {
-                if (selectedCampaign && view === 'studio') {
-                    setConfig({
-                        logo: '', brandColor: '#2563eb', headline: selectedCampaign.name || 'Special Offer',
-                        subtext: 'Sign up below to claim your discount.', cta: 'Claim Offer', phone: '1-800-555-0199', timer: 25,
-                        mainImg: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600&q=80',
-                        customFields: [], isGeneratingImg: false
+            // Scroll Chat
+            useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [chatHistory]);
+
+            // AI Studio Interaction
+            const callAI = async (msg) => {
+                if(!msg) return;
+                setIsAiThinking(true);
+                setChatHistory(p => [...p, { role: 'user', content: msg }]);
+                const sys = `You are the Adviuz AI Architect. Help design a landing page. Return a message and a JSON block. Keys: color, headline, subtext, cta.`;
+                try {
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: msg }] }], systemInstruction: { parts: [{ text: sys }] } })
                     });
-                    setChatHistory([{ role: 'model', content: `Hi! I'm the AI Architect (${selectedModel}). Ready to design for ${selectedCampaign.client}.` }]);
-                }
-            }, [selectedCampaign, view, selectedModel]);
-
-            useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatHistory]);
-
-            // --- DATA FILTERING LOGIC ---
-            const processedCampaigns = useMemo(() => {
-                return campaigns
-                    .filter(c => sessionRole === 'Manager' ? c.campaign_id === sessionStore : true)
-                    .filter(c => regionFilter === 'All' || c.region === regionFilter)
-                    .filter(c => typeFilter === 'All' || c.type === typeFilter)
-                    .filter(c => statusFilter === 'All' || c.status === statusFilter)
-                    .filter(c => c.client.toLowerCase().includes(searchQuery.toLowerCase()) || c.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                    .sort((a, b) => {
-                        if (sortBy === 'name-az') return a.client.localeCompare(b.client);
-                        if (sortBy === 'dist-hi') return b.fb_impressions - a.fb_impressions;
-                        if (sortBy === 'prog-hi') {
-                            const progA = a.consumed / a.allotted;
-                            const progB = b.consumed / b.allotted;
-                            return progB - progA;
-                        }
-                        return 0;
-                    });
-            }, [campaigns, sessionRole, sessionStore, searchQuery, regionFilter, typeFilter, statusFilter, sortBy]);
-
-            const visibleLeads = useMemo(() => {
-                return leads.filter(l => sessionRole === 'Manager' ? campaigns.find(c=>c.campaign_id===sessionStore)?.client === l.client : true);
-            }, [leads, sessionRole, sessionStore, campaigns]);
-
-            const visibleUsers = useMemo(() => {
-                return users.filter(u => sessionRole === 'Manager' ? campaigns.find(c=>c.campaign_id===sessionStore)?.client === u.client : true);
-            }, [users, sessionRole, sessionStore, campaigns]);
-
-            const filteredLogs = useMemo(() => {
-                return logs.filter(l => logTagFilter === 'All' || l.tag === logTagFilter);
-            }, [logs, logTagFilter]);
-
-            // --- ACTIONS ---
-            const addLog = (tag, message, client) => {
-                setLogs(prev => [{ id: 'l' + Date.now(), timestamp: new Date(), tag, message, client }, ...prev]);
+                    const data = await res.json();
+                    const aiRaw = data.candidates[0].content.parts[0].text;
+                    const jsonMatch = aiRaw.match(/```json\n([\s\S]*?)\n```/);
+                    if (jsonMatch) setConfig(prev => ({ ...prev, ...JSON.parse(jsonMatch[1]) }));
+                    const cleanMsg = aiRaw.replace(/```json[\s\S]*?```/, "").trim();
+                    setChatHistory(p => [...p, { role: 'model', content: cleanMsg }]);
+                } catch (e) {
+                    setChatHistory(p => [...p, { role: 'model', content: "Connection to AI failed." }]);
+                } finally { setIsAiThinking(false); }
             };
 
             const toggleStatus = (id) => {
-                setCampaigns(prev => prev.map(c => {
-                    if (c.id === id) {
-                        const newStatus = c.status === 'Active' ? 'Paused' : 'Active';
-                        addLog('Campaign', `Ad status changed to ${newStatus}`, c.client);
-                        return { ...c, status: newStatus };
-                    }
-                    return c;
-                }));
+                setCampaigns(prev => prev.map(c => c.id === id ? { ...c, status: c.status === 'Active' ? 'Paused' : 'Active' } : c));
             };
 
-            const handleCreateCampaign = () => {
-                if (!newCamp.client || !newCamp.name || !newCamp.allotted) return alert('Fill in all fields.');
-                const created = { 
-                    id: 'c' + Date.now(), campaign_id: 'NEW_01', name: newCamp.name, client: newCamp.client, 
-                    region: 'West', status: 'Paused', type: newCamp.type, allotted: parseInt(newCamp.allotted), 
-                    consumed: 0, fb_impressions: 0,
-                    leadsGenerated: 0, leadsProcess: 0, leadsClosed: 0, leadsDisqualified: 0
-                };
-                setCampaigns([created, ...campaigns]);
-                addLog('Campaign', `Campaign "${created.name}" created.`, created.client);
-                setShowCreateModal(false);
-                setNewCamp({ client: '', name: '', type: 'Views', allotted: 5000 });
-            };
+            const filteredCampaigns = campaigns.filter(c => c.client.toLowerCase().includes(searchQuery.toLowerCase()) || c.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-            const handleCreateUser = () => {
-                if (!newUser.name || !newUser.email || !newUser.client) return alert('Fill in all fields.');
-                const created = { id: 'u' + Date.now(), name: newUser.name, email: newUser.email, client: newUser.client, role: newUser.role, status: 'Active' };
-                setUsers([created, ...users]);
-                addLog('System', `User ${newUser.name} provisioned.`, newUser.client);
-                setShowUserModal(false);
-                setNewUser({ name: '', email: '', role: 'Store Manager', client: '' });
-            };
-
-            const openEdit = (camp) => {
-                setEditForm({ 
-                    ...camp, 
-                    headline: camp.name, subtext: 'Edit me...', image: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600&q=80', color: '#2563eb' 
-                });
-                setEditingAd(camp);
-            };
-
-            const saveEdit = () => {
-                setCampaigns(prev => prev.map(c => c.id === editForm.id ? { ...c, name: editForm.headline, allotted: parseInt(editForm.allotted) } : c));
-                addLog('Campaign', `Ad creative/budget updated.`, editForm.client);
-                setEditingAd(null);
-                setEditForm(null);
-            };
-
-            // --- AI & MEDIA LOGIC ---
-            const generateAIImage = async (prompt) => {
-                setConfig(prev => ({ ...prev, isGeneratingImg: true }));
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ instances: [{ prompt: prompt }], parameters: { sampleCount: 1 } })
-                    });
-                    const result = await response.json();
-                    if (result.predictions && result.predictions[0]) {
-                        const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
-                        setConfig(prev => ({ ...prev, mainImg: imageUrl, isGeneratingImg: false }));
-                        setChatHistory(prev => [...prev, { role: 'model', content: "Generated a new background image based on your request." }]);
-                    } else throw new Error("No image data.");
-                } catch (err) { 
-                    setConfig(prev => ({ ...prev, isGeneratingImg: false }));
-                    setChatHistory(prev => [...prev, { role: 'model', content: "Failed to generate image. Please try again." }]);
-                }
-            };
-
-            const callAI = async (userMsg) => {
-                setIsAiThinking(true);
-                
-                if (userMsg.toLowerCase().includes("generate image") || userMsg.toLowerCase().includes("create image") || userMsg.toLowerCase().includes("make a photo")) {
-                    await generateAIImage(userMsg);
-                    setIsAiThinking(false);
-                    return;
-                }
-
-                const systemPrompt = `You are the Adviuz AI Production Studio (Personality: ${selectedModel}). Help design a landing page for ${selectedCampaign?.client || "the client"}. 
-                Respond with a friendly conversational message, followed by a JSON block wrapped in \`\`\`json ... \`\`\` for config updates.
-                Valid JSON Keys: brandColor, headline, subtext, cta, timer, phone, customFields (Array of {id, label}).`;
-
-                try {
-                    // Note: All models map to Gemini for this preview environment.
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: chatHistory.map(c => ({ role: c.role, parts: [{ text: c.content }] })).concat([{ role: 'user', parts: [{ text: userMsg }] }]),
-                            systemInstruction: { parts: [{ text: systemPrompt }] }
-                        })
-                    });
-
-                    const result = await response.json();
-                    const aiRaw = result.candidates?.[0]?.content?.parts?.[0]?.text || "I'm listening.";
-                    
-                    const jsonMatch = aiRaw.match(/```json\n([\s\S]*?)\n```/);
-                    if (jsonMatch) {
-                        try { setConfig(prev => ({ ...prev, ...JSON.parse(jsonMatch[1]) })); } catch (e) { console.error("JSON parse error"); }
-                    }
-                    
-                    const cleanMsg = aiRaw.replace(/```json[\s\S]*?```/, "").trim();
-                    setChatHistory(prev => [...prev, { role: 'model', content: cleanMsg }]);
-                } catch (err) { 
-                    setChatHistory(prev => [...prev, { role: 'model', content: "Sorry, I had trouble connecting to the AI service." }]);
-                } finally { 
-                    setIsAiThinking(false); 
-                }
-            };
-
-            // --- LOCAL FILE UPLOAD (Logo & Main Image) ---
-            const handleFileUpload = (e, type) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    if (type === 'logo') setConfig(prev => ({ ...prev, logo: reader.result }));
-                    if (type === 'mainImg') setConfig(prev => ({ ...prev, mainImg: reader.result }));
-                    setChatHistory(prev => [...prev, { role: 'model', content: `Your ${type === 'logo' ? 'logo' : 'background photo'} has been uploaded and applied to the preview.` }]);
-                };
-                reader.readAsDataURL(file);
-            };
-
-            // --- SMART URL GENERATION ---
-            const finalUrl = useMemo(() => {
-                if (!selectedCampaign) return '';
-                const params = new URLSearchParams({ 
-                    cid: selectedCampaign.campaign_id, 
-                    h: config.headline, 
-                    color: config.brandColor.replace('#',''),
-                    tel: config.phone,
-                    f: JSON.stringify(config.customFields)
-                });
-                return `https://adviuz.app/v?${params.toString()}`;
-            }, [selectedCampaign, config]);
-
-
-            // ==========================================
-            // RENDER: LOGIN (Master Admin Only)
-            // ==========================================
-            if (!sessionRole) {
-                return (
-                    <div className="flex h-screen items-center justify-center bg-slate-900 px-4">
-                        <form 
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                if(pin === 'admin') { setSessionRole('CEO'); setSessionStore(null); }
-                                else { alert('Invalid Master PIN'); }
-                            }} 
-                            className="bg-white p-8 rounded-[2rem] w-full max-w-sm shadow-2xl text-center animate-in"
-                        >
-                            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6"><SvgIcon name="AdviuzLogo" size={40} /></div>
-                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Master Admin</h2>
-                            <p className="text-sm text-slate-500 mb-8">Strict admin-only access.</p>
-                            
-                            <input 
-                                type="password" 
-                                placeholder="Enter PIN (type 'admin')" 
-                                value={pin} 
-                                onChange={e=>setPin(e.target.value)} 
-                                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 mb-6 text-center tracking-widest font-bold" 
-                                required 
-                            />
-                            
-                            <button type="submit" className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
-                                Secure Login
-                            </button>
-                        </form>
-                    </div>
-                );
-            }
-
-            // ==========================================
-            // RENDER: DESKTOP TABLES
-            // ==========================================
-            const renderDesktopTable = () => {
-                if (activeTab === 'campaigns') return (
-                    <div className="hidden md:block table-container animate-in overflow-x-auto">
-                        <table className="w-full text-left min-w-[800px]">
-                            <thead><tr><th>Client / Ad</th><th>Progress (Allot / Cons)</th><th className="text-center">Leads Generated</th><th>Status</th><th className="text-right">Actions</th></tr></thead>
-                            <tbody>
-                                {processedCampaigns.map(c => {
-                                    // Make sure consumed tracks leads if product type is Leads
-                                    const consumedAmount = c.type === 'Leads' ? c.leadsGenerated : c.consumed;
-                                    const progress = Math.round((consumedAmount / c.allotted) * 100) || 0;
-                                    return (
-                                        <tr key={c.id}>
-                                            <td><p className="font-bold text-slate-900">{c.client}</p><p className="text-xs text-slate-500 truncate max-w-[150px]">{c.name}</p></td>
-                                            <td className="w-40"><ProgressBar consumed={consumedAmount} allotted={c.allotted} type={c.type} /></td>
-                                            <td className="text-center font-bold text-indigo-600">{c.leadsGenerated || 0}</td>
-                                            <td>
-                                                <div className="flex items-center gap-2">
-                                                    <div className="toggle-switch" data-state={c.status.toLowerCase()} onClick={() => toggleStatus(c.id)}><span className="toggle-thumb"></span></div>
-                                                    <span className="text-[10px] font-bold uppercase text-slate-500">{c.status}</span>
-                                                </div>
-                                            </td>
-                                            <td className="text-right whitespace-nowrap">
-                                                <button onClick={()=>setPreviewAd(c)} className="p-2 text-slate-400 hover:text-slate-900" title="Preview"><SvgIcon name="Eye"/></button>
-                                                <button onClick={()=>openEdit(c)} className="p-2 text-slate-400 hover:text-blue-600 ml-1" title="Edit"><SvgIcon name="Edit"/></button>
-                                                <button onClick={()=>{setSelectedCampaign(c); setView('studio');}} className="ml-2 bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700 px-3 py-1.5 rounded text-[10px] font-bold transition">AI Studio</button>
-                                            </td>
-                                        </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                );
-                if (activeTab === 'leads') return (
-                    <div className="hidden md:block table-container animate-in overflow-x-auto">
-                        <table className="w-full text-left min-w-[800px]">
-                            <thead><tr><th>Lead Contact</th><th>Campaign Source</th><th>Client Assignment</th><th>Status</th><th className="text-right">Date Received</th></tr></thead>
-                            <tbody>
-                                {visibleLeads.map(l => (
-                                    <tr key={l.id}>
-                                        <td>
-                                            <p className="font-bold text-slate-900">{l.name}</p>
-                                            <p className="text-xs text-slate-500 flex items-center gap-1 mt-1"><SvgIcon name="Phone" size={10}/> {l.phone}</p>
-                                        </td>
-                                        <td className="text-sm text-slate-600 font-medium">{l.campaign}</td>
-                                        <td className="text-sm font-semibold text-slate-800">{l.client}</td>
-                                        <td><StatusBadge status={l.status} /></td>
-                                        <td className="text-right text-xs text-slate-500 font-medium">{l.date}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                );
-                if (activeTab === 'users') return (
-                    <div className="hidden md:block table-container animate-in overflow-x-auto">
-                        <table className="w-full text-left min-w-[800px]">
-                            <thead><tr><th>Client User</th><th>Account Email</th><th>Assigned Store</th><th>Role</th><th className="text-right">Status</th></tr></thead>
-                            <tbody>
-                                {visibleUsers.map(u => (
-                                    <tr key={u.id}>
-                                        <td className="font-bold text-slate-900">{u.name}</td>
-                                        <td className="text-sm text-slate-500 flex items-center gap-1"><SvgIcon name="Mail" size={12}/> {u.email}</td>
-                                        <td className="font-medium text-slate-700">{u.client}</td>
-                                        <td className="text-sm text-slate-600">{u.role}</td>
-                                        <td className="text-right"><StatusBadge status={u.status} /></td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                );
-            };
-
-            // ==========================================
-            // RENDER: MOBILE CARDS
-            // ==========================================
-            const renderMobileCards = () => {
-                if (activeTab === 'campaigns') return (
-                    <div className="md:hidden space-y-4">
-                        {processedCampaigns.map(c => {
-                            const consumedAmount = c.type === 'Leads' ? c.leadsGenerated : c.consumed;
-                            return (
-                                <div key={c.id} className="mobile-card animate-slide-up">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div><h3 className="font-bold text-lg text-slate-900 leading-tight">{c.client}</h3><p className="text-xs text-slate-500">{c.name}</p></div>
-                                        <div className="flex flex-col items-end gap-1">
-                                            <div className="toggle-switch" data-state={c.status.toLowerCase()} onClick={() => toggleStatus(c.id)}><span className="toggle-thumb"></span></div>
-                                            <span className="text-[9px] font-bold uppercase text-slate-400">{c.status}</span>
-                                        </div>
-                                    </div>
-                                    <div className="mb-4"><ProgressBar consumed={consumedAmount} allotted={c.allotted} type={c.type} /></div>
-                                    <div className="flex justify-between items-center border-t border-slate-100 pt-3 mb-4">
-                                        <span className="text-[10px] uppercase text-slate-400 font-bold">Leads Generated</span>
-                                        <span className="font-bold text-sm text-indigo-600">{c.leadsGenerated || 0}</span>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button onClick={()=>setPreviewAd(c)} className="flex-1 py-2 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold flex justify-center items-center gap-1"><SvgIcon name="Eye" size={14}/> Preview</button>
-                                        <button onClick={()=>openEdit(c)} className="flex-1 py-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold flex justify-center items-center gap-1"><SvgIcon name="Edit" size={14}/> Edit</button>
-                                    </div>
-                                    <button onClick={()=>{setSelectedCampaign(c); setView('studio');}} className="w-full mt-2 bg-slate-900 text-white py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-2"><SvgIcon name="Bot" size={14}/> Open AI Studio</button>
-                                </div>
-                            )
-                        })}
-                    </div>
-                );
-                if (activeTab === 'leads') return (
-                    <div className="md:hidden space-y-4">
-                        {visibleLeads.map(l => (
-                            <div key={l.id} className="mobile-card animate-slide-up">
-                                <div className="flex justify-between items-start mb-2"><h3 className="font-bold text-slate-900 text-lg">{l.name}</h3><StatusBadge status={l.status} /></div>
-                                <a href={`tel:${l.phone}`} className="text-blue-600 font-bold text-sm flex items-center gap-1.5 mb-4"><SvgIcon name="Phone" size={14}/> {l.phone}</a>
-                                <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Source Client</p>
-                                    <p className="text-sm font-semibold text-slate-700">{l.client}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                );
-                if (activeTab === 'users') return (
-                    <div className="md:hidden space-y-4">
-                        {visibleUsers.map(u => (
-                            <div key={u.id} className="mobile-card animate-slide-up">
-                                <div className="flex justify-between items-start mb-2"><h3 className="font-bold text-slate-900 text-lg">{u.name}</h3><StatusBadge status={u.status} /></div>
-                                <p className="text-slate-500 text-sm flex items-center gap-1.5 mb-4"><SvgIcon name="Mail" size={14}/> {u.email}</p>
-                                <div className="border-t border-slate-100 pt-3 flex justify-between items-center">
-                                    <span className="text-xs font-medium text-slate-500">{u.client}</span><span className="text-xs font-bold text-slate-700">{u.role}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                );
-            };
-
+            if (!isLoggedIn) return (
+                <div className="flex h-screen items-center justify-center bg-[#0f172a] px-4">
+                    <form onSubmit={(e)=>{e.preventDefault(); if(pin === 'admin') setIsLoggedIn(true); else alert('Invalid PIN');}} className="bg-white p-10 rounded-[2.5rem] w-full max-w-sm text-center shadow-2xl animate-in">
+                        <SvgIcon name="Adviuz" size={48} className="mx-auto mb-6"/>
+                        <h1 className="text-2xl font-bold text-slate-900 mb-2">Master Admin</h1>
+                        <p className="text-sm text-slate-500 mb-8">Authorized Personnel Only</p>
+                        <input type="password" placeholder="Enter PIN" value={pin} onChange={e=>setPin(e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center text-xl tracking-[0.5em] font-bold outline-none focus:border-blue-500 mb-6" />
+                        <button type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition-all">Secure Login</button>
+                    </form>
+                </div>
+            );
 
             return (
                 <div className="flex h-screen overflow-hidden">
-                    
-                    {/* --- DESKTOP SIDEBAR --- */}
-                    <aside className="w-56 lg:w-64 bg-[#0f172a] text-slate-300 p-4 lg:p-6 shrink-0 hidden md:flex flex-col z-20 shadow-xl relative">
-                        <div className="flex items-center gap-3 mb-10">
-                            <SvgIcon name="AdviuzLogo" size={32} className="shadow-md rounded-md"/>
-                            <h1 className="text-xl font-bold text-white tracking-wide">Adviuz</h1>
-                        </div>
-                        <nav className="space-y-2 flex-1">
-                            <button onClick={()=>{setActiveTab('campaigns'); setView('dashboard');}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all ${activeTab==='campaigns' && view==='dashboard' ?'bg-blue-600 text-white shadow-md':'hover:bg-slate-800'}`}>
-                                <SvgIcon name="LayoutGrid" size={18}/> Campaigns
-                            </button>
-                            <button onClick={()=>{setActiveTab('leads'); setView('dashboard');}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all ${activeTab==='leads' && view==='dashboard'?'bg-blue-600 text-white shadow-md':'hover:bg-slate-800'}`}>
-                                <SvgIcon name="List" size={18}/> Global Leads
-                            </button>
-                            <button onClick={()=>{setActiveTab('users'); setView('dashboard');}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all ${activeTab==='users' && view==='dashboard'?'bg-blue-600 text-white shadow-md':'hover:bg-slate-800'}`}>
-                                <SvgIcon name="Users" size={18}/> Directory
-                            </button>
-                            <button onClick={()=>{setActiveTab('logs'); setView('dashboard');}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all ${activeTab==='logs' && view==='dashboard'?'bg-blue-600 text-white shadow-md':'hover:bg-slate-800'}`}>
-                                <SvgIcon name="Activity" size={18}/> System Logs
-                            </button>
+                    {/* Sidebar */}
+                    <aside className="w-64 bg-[#0f172a] text-slate-300 p-6 hidden md:flex flex-col shrink-0 shadow-xl">
+                        <div className="flex items-center gap-3 mb-10 text-white"><SvgIcon name="Adviuz" size={32}/><h1 className="text-xl font-bold tracking-tight">Adviuz</h1></div>
+                        <nav className="space-y-1 flex-1">
+                            <button onClick={()=>{setActiveTab('campaigns'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='campaigns' && view==='dashboard'?'bg-blue-600 text-white shadow-md':'hover:bg-slate-800/50'}`}><SvgIcon name="Grid" size={18}/> Campaigns</button>
+                            <button onClick={()=>{setActiveTab('leads'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='leads'?'bg-blue-600 text-white shadow-md':'hover:bg-slate-800/50'}`}><SvgIcon name="List" size={18}/> Global Leads</button>
+                            <button onClick={()=>{setActiveTab('users'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='users'?'bg-blue-600 text-white shadow-md':'hover:bg-slate-800/50'}`}><SvgIcon name="Users" size={18}/> Directory</button>
+                            <button onClick={()=>{setActiveTab('logs'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='logs'?'bg-blue-600 text-white shadow-md':'hover:bg-slate-800/50'}`}><SvgIcon name="Activity" size={18}/> System Logs</button>
                         </nav>
-                        <div className="pt-6 border-t border-slate-800">
-                            <p className="text-center text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">{sessionRole} Access</p>
-                            <button onClick={()=>{setSessionRole(null); setPin(''); setView('dashboard');}} className="w-full flex items-center justify-center gap-2 text-xs text-rose-400 hover:text-rose-300 font-semibold py-2 transition-colors"><SvgIcon name="LogOut" size={14}/> Secure Logout</button>
-                        </div>
+                        <button onClick={()=>setIsLoggedIn(false)} className="py-4 border-t border-slate-800 text-xs text-rose-400 font-bold tracking-widest uppercase text-center hover:text-rose-300 transition-colors">Secure Logout</button>
                     </aside>
 
-                    {/* --- MAIN WORKSPACE --- */}
-                    <main className="flex-1 overflow-hidden bg-[#f8fafc] flex flex-col relative">
-                        
+                    {/* Main Workspace */}
+                    <main className="flex-1 flex flex-col overflow-hidden bg-[#f8fafc]">
                         {view === 'dashboard' ? (
-                            /* --- DASHBOARD VIEW --- */
-                            <div className="flex-1 flex flex-col overflow-hidden">
-                                <header className="bg-white border-b border-slate-200 px-6 py-4 md:px-8 md:py-6 flex justify-between items-center sticky top-0 z-10 shadow-sm shrink-0">
-                                    <div>
-                                        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 capitalize tracking-tight">{activeTab}</h2>
-                                        <p className="text-xs text-slate-500 mt-1 hidden md:block">Manage your {activeTab} across the platform.</p>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        {activeTab === 'campaigns' && sessionRole === 'CEO' && (
-                                            <button onClick={() => setShowCreateModal(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-md transition-colors">
-                                                <SvgIcon name="Plus" size={16}/> <span className="hidden md:inline">Create Ad</span>
-                                            </button>
-                                        )}
-                                        {activeTab === 'users' && sessionRole === 'CEO' && (
-                                            <button onClick={() => setShowUserModal(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-md transition-colors">
-                                                <SvgIcon name="Plus" size={16}/> <span className="hidden md:inline">Add User</span>
-                                            </button>
-                                        )}
-                                        <div className="hidden sm:block text-right">
-                                            <p className="text-sm font-bold text-slate-900 leading-none">Portal</p>
-                                            <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-1">{sessionRole}</p>
-                                        </div>
-                                    </div>
+                            <div className="flex-1 flex flex-col overflow-hidden animate-in">
+                                <header className="bg-white border-b px-8 py-6 flex justify-between items-center shrink-0 shadow-sm">
+                                    <h2 className="text-2xl font-bold capitalize text-slate-900">{activeTab}</h2>
+                                    <button onClick={()=>activeTab==='users'?setShowUserModal(true):setShowCreateModal(true)} className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-md hover:bg-blue-700 transition-all"><SvgIcon name="Plus" size={16}/> Create {activeTab==='users'?'User':'Ad'}</button>
                                 </header>
 
-                                <div className="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
-                                    {/* Mobile Segmented Tabs */}
-                                    <div className="md:hidden flex bg-slate-200/50 p-1.5 rounded-xl mb-6 shadow-inner">
-                                        {['campaigns', 'leads', 'users', 'logs'].map(t => (
-                                            <button key={t} onClick={()=>setActiveTab(t)} className={`flex-1 py-2.5 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all capitalize ${activeTab===t ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}>{t}</button>
-                                        ))}
-                                    </div>
-
-                                    {/* DETAILED FILTER BAR (Campaigns Only) */}
+                                <div className="flex-1 p-6 md:p-8 overflow-y-auto no-scrollbar">
                                     {activeTab === 'campaigns' && (
-                                        <div className="bg-white p-4 rounded-2xl border border-slate-200 mb-6 shadow-sm">
-                                            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                                <div className="md:col-span-2 relative">
-                                                    <SvgIcon name="Search" size={16} className="absolute left-3 top-3 text-slate-400" />
-                                                    <input type="text" placeholder="Search client or ad..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-sm font-medium" />
-                                                </div>
-                                                <select value={regionFilter} onChange={e=>setRegionFilter(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium outline-none text-slate-600 appearance-none">
-                                                    <option value="All">All Regions</option><option value="West">West Region</option><option value="East">East Region</option>
-                                                </select>
-                                                <select value={typeFilter} onChange={e=>setTypeFilter(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium outline-none text-slate-600 appearance-none">
-                                                    <option value="All">All Products</option><option value="Views">Views</option><option value="Leads">Leads</option>
-                                                </select>
-                                                <select value={sortBy} onChange={e=>setSortBy(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold outline-none text-blue-600 appearance-none">
-                                                    <option value="name-az">Sort: A-Z</option><option value="dist-hi">Sort: Reach</option><option value="prog-hi">Sort: Progress</option>
-                                                </select>
+                                        <>
+                                            <div className="bg-white p-4 rounded-2xl border border-slate-200 mb-6 flex items-center gap-4 shadow-sm">
+                                                <input placeholder="Filter client or ad title..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} className="input-field max-w-sm" />
                                             </div>
+                                            <div className="hidden md:block table-container">
+                                                <table className="w-full text-left">
+                                                    <thead><tr><th>Client / Ad Title</th><th>Fulfillment Progress</th><th className="text-center">Leads Gen</th><th>Status</th><th className="text-right">Action</th></tr></thead>
+                                                    <tbody>{filteredCampaigns.map(c=>(<tr key={c.id}>
+                                                        <td><p className="font-bold text-slate-900">{c.client}</p><p className="text-xs text-slate-500 font-medium">{c.name}</p></td>
+                                                        <td className="w-56"><ProgressBar consumed={c.type==='Leads'?c.leadsGenerated:c.consumed} allotted={c.allotted} type={c.type} /></td>
+                                                        <td className="text-center font-black text-indigo-600 text-lg">{c.leadsGenerated}</td>
+                                                        <td><div className="flex items-center gap-2"><div className="toggle-switch" data-state={c.status.toLowerCase()} onClick={()=>toggleStatus(c.id)}><span className="toggle-thumb"></span></div><span className="text-[10px] font-bold uppercase text-slate-500">{c.status}</span></div></td>
+                                                        <td className="text-right"><button onClick={()=>{setSelectedCampaign(c); setView('studio'); setPreviewTime(25);}} className="bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">AI Studio</button></td>
+                                                    </tr>))}</tbody>
+                                                </table>
+                                            </div>
+                                            <div className="md:hidden space-y-4">
+                                                {filteredCampaigns.map(c=>(<div key={c.id} className="mobile-card">
+                                                    <div className="flex justify-between items-start mb-4"><div><p className="font-bold text-lg">{c.client}</p><p className="text-xs text-slate-500">{c.name}</p></div><div className="toggle-switch" data-state={c.status.toLowerCase()} onClick={()=>toggleStatus(c.id)}><span className="toggle-thumb"></span></div></div>
+                                                    <ProgressBar consumed={c.type==='Leads'?c.leadsGenerated:c.consumed} allotted={c.allotted} type={c.type} />
+                                                    <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center"><span className="text-xs font-bold text-slate-400">Leads Generated</span><span className="font-black text-indigo-600">{c.leadsGenerated}</span></div>
+                                                    <button onClick={()=>{setSelectedCampaign(c); setView('studio'); setPreviewTime(25);}} className="w-full mt-4 bg-slate-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg">Open AI Studio</button>
+                                                </div>))}
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {activeTab === 'users' && (
+                                        <div className="table-container">
+                                            <table className="w-full text-left">
+                                                <thead><tr><th>Manager Name</th><th>Email Address</th><th>Assigned Store</th><th>Role</th></tr></thead>
+                                                <tbody>{users.map(u=>(<tr key={u.id}><td className="font-bold text-slate-900">{u.name}</td><td className="text-slate-500">{u.email}</td><td className="font-medium">{u.client}</td><td><span className="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">{u.role}</span></td></tr>))}</tbody>
+                                            </table>
                                         </div>
                                     )}
 
-                                    <div className="hidden md:block">{renderDesktopTable()}</div>
-                                    <div className="md:hidden">{renderMobileCards()}</div>
+                                    {activeTab === 'logs' && (
+                                        <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm">
+                                            {logs.map(log => (<div key={log.id} className="flex gap-4 items-start border-b border-slate-50 pb-4 last:border-0 last:pb-0">
+                                                <div className="w-2 h-2 mt-2 rounded-full bg-slate-300 shrink-0"></div>
+                                                <div><p className="text-sm font-semibold text-slate-800">{log.message}</p><p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{log.tag} • {new Date(log.time).toLocaleTimeString()}</p></div>
+                                            </div>))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ) : (
                             /* --- AI STUDIO VIEW --- */
-                            <div className="flex h-full flex-col bg-slate-50 animate-in">
-                                {/* Studio Header (Multi-Model Selector) */}
-                                <header className="p-4 md:p-6 bg-white border-b flex flex-wrap items-center justify-between shadow-sm z-10 gap-4 shrink-0">
+                            <div className="flex-1 flex flex-col bg-white animate-in overflow-hidden">
+                                <header className="p-4 border-b flex justify-between items-center shrink-0">
                                     <div className="flex items-center gap-4">
-                                        <button onClick={()=>setView('dashboard')} className="p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 transition"><SvgIcon name="ChevronRight" className="rotate-180"/></button>
-                                        <div className="hidden sm:block h-8 w-px bg-slate-200"></div>
-                                        <div className="flex bg-slate-100 p-1 rounded-xl gap-1">
-                                            {['Gemini', 'Claude', 'GPT'].map(m => (
-                                                <button key={m} onClick={() => setSelectedModel(m)} className={`px-3 py-1.5 md:py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all ${selectedModel === m ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}>
-                                                    <SvgIcon name={m === 'Gemini' ? 'Sparkles' : m === 'Claude' ? 'Cpu' : 'Zap'} size={12}/> {m}
-                                                </button>
-                                            ))}
-                                        </div>
+                                        <button onClick={()=>setView('dashboard')} className="p-2 hover:bg-slate-100 rounded-full text-slate-600"><SvgIcon name="ChevronLeft" size={24}/></button>
+                                        <h3 className="font-black text-lg tracking-tight text-slate-900">{selectedCampaign?.client} Studio</h3>
                                     </div>
-                                    <div className="flex gap-2">
-                                        <button onClick={()=>logoInputRef.current.click()} className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-[10px] font-bold uppercase flex items-center gap-1.5 transition">
-                                            <SvgIcon name="Upload" size={14}/> <span className="hidden sm:inline">Logo</span>
-                                            <input ref={logoInputRef} type="file" className="hidden" accept="image/*" onChange={(e)=>handleFileUpload(e, 'logo')}/>
-                                        </button>
-                                        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-md transition">Deploy</button>
-                                    </div>
+                                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest shadow-md transition-all">Deploy Changes</button>
                                 </header>
-                                
                                 <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-                                    {/* Chat Column */}
-                                    <div className="flex-1 flex flex-col border-r border-slate-200 bg-slate-50 min-h-[50%] md:min-h-0">
-                                        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 no-scrollbar">
-                                            {chatHistory.map((m, i) => (
-                                                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                                    <div className={m.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}>{m.content}</div>
-                                                </div>
-                                            ))}
+                                    {/* Chat Pane */}
+                                    <div className="flex-1 flex flex-col border-r bg-slate-50">
+                                        <div className="flex-1 p-6 space-y-4 overflow-y-auto no-scrollbar">
+                                            <div className="chat-bubble-ai">Hi! I'm the Adviuz AI Architect. Tell me how to style this landing page for <b>{selectedCampaign?.client}</b>. I can write copy, set brand colors, and generate form fields.</div>
+                                            {chatHistory.map((m,i)=>(<div key={i} className={`flex ${m.role==='user'?'justify-end':'justify-start'}`}><div className={m.role==='user'?'chat-bubble-user':'chat-bubble-ai'}>{m.content}</div></div>))}
                                             {isAiThinking && <div className="ai-loading-dots"><div className="dot"></div><div className="dot"></div><div className="dot"></div></div>}
                                             <div ref={chatEndRef} />
                                         </div>
-                                        <div className="p-4 md:p-6 bg-white border-t border-slate-200 shrink-0">
-                                            <div className="relative flex items-center max-w-2xl mx-auto">
-                                                <input 
-                                                    className="w-full pl-5 pr-12 py-3 bg-slate-100 rounded-full outline-none focus:bg-white border-2 border-transparent focus:border-blue-200 transition-all text-sm shadow-inner" 
-                                                    placeholder="Ask AI to design, write copy, or generate images..." 
-                                                    value={userInput} onChange={e=>setUserInput(e.target.value)} 
-                                                    onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault(); const val=userInput; setUserInput(""); setChatHistory(p=>[...p,{role:'user',content:val}]); callAI(val);}}}
-                                                />
-                                                <button onClick={()=>{const val=userInput; setUserInput(""); setChatHistory(p=>[...p,{role:'user',content:val}]); callAI(val);}} className="absolute right-1.5 p-2.5 bg-blue-600 text-white rounded-full shadow-md hover:scale-105 transition-transform"><SvgIcon name="Send" size={16}/></button>
+                                        <div className="p-6 bg-white border-t border-slate-200">
+                                            <div className="relative flex items-center max-w-2xl mx-auto shadow-sm">
+                                                <input onKeyDown={e=>{if(e.key==='Enter'){callAI(e.target.value); e.target.value=''}}} className="w-full pl-5 pr-14 py-4 bg-slate-50 border-2 border-transparent focus:border-blue-100 focus:bg-white outline-none rounded-2xl text-sm transition-all" placeholder="e.g. Set theme color to forest green and offer a free inspection..." />
+                                                <button className="absolute right-2 p-2.5 bg-blue-600 text-white rounded-xl hover:scale-105 transition-transform"><SvgIcon name="Send" size={18}/></button>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* iPhone Preview Column */}
-                                    <div className="w-full md:w-[450px] bg-slate-100 flex flex-col items-center justify-start shrink-0 p-6 border-t md:border-t-0 md:border-l overflow-y-auto no-scrollbar">
-                                        <div className="w-full flex justify-between items-center mb-4 px-2 max-w-[310px]">
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Live Preview</span>
-                                            <a href={finalUrl} target="_blank" rel="noreferrer" className="text-[10px] font-bold text-blue-600 flex items-center gap-1 hover:underline bg-blue-50 px-2 py-1 rounded">Test Link</a>
-                                        </div>
-
-                                        <div className="iphone-frame shadow-2xl shrink-0">
+                                    {/* Preview Pane */}
+                                    <div className="w-full md:w-[420px] bg-slate-100 flex flex-col items-center justify-center shrink-0 border-l p-8 overflow-y-auto no-scrollbar">
+                                        <div className="iphone-frame shadow-[0_30px_60px_-12px_rgba(0,0,0,0.25)]">
                                             <div className="iphone-notch"></div>
-                                            <div className="absolute top-10 left-0 right-0 z-30 flex justify-center px-4">
-                                                {config.logo ? <img src={config.logo} className="h-8 w-auto object-contain drop-shadow-md" /> : <div className="text-[10px] font-bold text-slate-500 bg-white/90 backdrop-blur px-3 py-1 rounded shadow-sm">Brand Logo</div>}
-                                            </div>
-                                            
-                                            {/* LIVE PROGRESS BAR */}
                                             <div className="timer-bar-preview">
-                                                <div className="timer-progress-fill transition-all duration-1000 ease-linear" style={{backgroundColor: config.brandColor, width: `${((config.timer - previewTime) / config.timer) * 100}%`}}></div>
+                                                <div className="timer-progress-fill transition-all duration-1000 ease-linear" style={{width: `${((25-previewTime)/25)*100}%`, backgroundColor: config.color}}></div>
                                             </div>
-                                            
-                                            <div className="ad-preview-scroll bg-white p-6 pt-16 text-center">
-                                                {/* LIVE COUNTDOWN TEXT */}
-                                                {previewUnlocked ? (
-                                                    <p className="text-[10px] font-bold text-emerald-500 mb-6 uppercase tracking-widest">✅ Offer Unlocked</p>
-                                                ) : (
-                                                    <p className="text-[10px] font-bold text-slate-400 mb-6 uppercase tracking-widest animate-pulse">Wait {previewTime}s to Unlock</p>
-                                                )}
-                                                
-                                                {/* Unified Media Area */}
-                                                <div className="aspect-[4/5] bg-slate-200 rounded-2xl mb-6 shadow-sm border border-slate-100 relative group overflow-hidden">
-                                                    {config.isGeneratingImg ? (
-                                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/10 backdrop-blur-sm">
-                                                            <div className="dot mb-2" style={{backgroundColor: config.brandColor}}></div>
-                                                            <span className="text-[10px] font-bold text-white drop-shadow-md uppercase tracking-widest">Generating...</span>
-                                                        </div>
-                                                    ) : (
-                                                        <img src={config.mainImg} className="w-full h-full object-cover" />
-                                                    )}
-                                                    <div onClick={()=>mainImgInputRef.current.click()} className="upload-overlay cursor-pointer rounded-2xl">
-                                                        <p className="font-semibold text-sm text-white flex items-center gap-2"><SvgIcon name="Image"/> Change Photo</p>
-                                                        <input ref={mainImgInputRef} type="file" className="hidden" accept="image/*" onChange={(e)=>handleFileUpload(e, 'mainImg')}/>
+                                            <div className="ad-preview-scroll p-6 pt-12 text-center bg-white h-full flex flex-col">
+                                                <p className={`text-[10px] font-black mb-6 uppercase tracking-widest ${previewTime === 0 ? 'text-emerald-500':'text-slate-400 animate-pulse'}`}>{previewTime === 0 ? '✅ Offer Unlocked' : `Unlock in ${previewTime}s`}</p>
+                                                <div className="aspect-[4/5] rounded-2xl overflow-hidden mb-6 shadow-sm border border-slate-100"><img src={config.img} className="w-full h-full object-cover" alt="Preview"/></div>
+                                                <h4 className="font-black text-xl leading-tight mb-2 text-slate-900">{config.headline}</h4>
+                                                <p className="text-xs text-slate-600 leading-relaxed mb-8">{config.subtext}</p>
+                                                <div className="mt-auto">
+                                                    <div className="bg-slate-50 rounded-xl p-4 text-left border border-slate-100 mb-6 space-y-2">
+                                                        <div className="preview-form-input py-2">Full Name</div>
+                                                        <div className="preview-form-input py-2">Email</div>
                                                     </div>
+                                                    <button disabled={previewTime > 0} className="w-full py-4 rounded-2xl font-black text-xs border-2 uppercase tracking-[0.1em] transition-all duration-500 shadow-md" style={{color: previewTime > 0 ? config.color : 'white', borderColor: config.color, backgroundColor: previewTime > 0 ? 'transparent' : config.color, borderStyle: previewTime > 0 ? 'dashed' : 'solid', opacity: previewTime > 0 ? 0.4 : 1}}>
+                                                        {previewTime === 0 ? config.cta : `${config.cta} (Locked)`}
+                                                    </button>
                                                 </div>
-
-                                                <h4 className="text-xl font-bold leading-tight mb-3 text-slate-900">{config.headline}</h4>
-                                                <p className="text-sm text-slate-600 mb-6 leading-relaxed">{config.subtext}</p>
-                                                
-                                                {/* Phone Preview */}
-                                                <div className="bg-slate-50 rounded-xl border border-slate-200 p-3 mb-6 text-center">
-                                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Call for Details</p>
-                                                    <a href={`tel:${config.phone.replace(/\D/g,'')}`} className="text-base font-bold flex items-center justify-center gap-1.5" style={{color: config.brandColor}}>
-                                                        <SvgIcon name="Phone" size={14} /> {config.phone}
-                                                    </a>
-                                                </div>
-
-                                                {/* Form Fields Preview */}
-                                                <div className="bg-white rounded-xl border border-slate-200 p-4 mb-6 shadow-sm text-left">
-                                                    <div className="preview-form-input">Full Name</div>
-                                                    <div className="preview-form-input">Email</div>
-                                                    <div className="preview-form-input">Phone</div>
-                                                    {config.customFields?.map(f => (
-                                                        <div key={f.id || f.label} className="preview-form-input font-medium flex justify-between items-center" style={{backgroundColor: `${config.brandColor}10`, borderColor: `${config.brandColor}30`, color: config.brandColor}}>
-                                                            {f.label} <SvgIcon name="ChevronRight" size={12} style={{opacity: 0.5}}/>
-                                                        </div>
-                                                    ))}
-                                                </div>
-
-                                                {/* LIVE UNLOCK BUTTON */}
-                                                <button 
-                                                    className="w-full py-4 rounded-xl font-bold text-xs border-2 uppercase tracking-wider transition-all duration-500" 
-                                                    style={{
-                                                        color: previewUnlocked ? 'white' : config.brandColor, 
-                                                        backgroundColor: previewUnlocked ? config.brandColor : 'transparent',
-                                                        borderColor: config.brandColor,
-                                                        borderStyle: previewUnlocked ? 'solid' : 'dashed',
-                                                        opacity: previewUnlocked ? 1 : 0.5
-                                                    }}
-                                                >
-                                                    {previewUnlocked ? config.cta : `${config.cta} (Locked)`}
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -850,188 +327,40 @@
                         )}
                     </main>
 
-                    {/* --- NEW CAMPAIGN MODAL (Allotment) --- */}
+                    {/* CREATE AD MODAL */}
                     {showCreateModal && (
-                        <div className="overlay animate-in">
-                            <div className="slide-panel flex flex-col">
-                                <div className="flex justify-between items-center mb-8">
-                                    <h2 className="text-2xl font-bold text-slate-900">New Campaign Setup</h2>
-                                    <button onClick={() => setShowCreateModal(false)} className="p-2 hover:bg-slate-100 rounded-full text-slate-500"><SvgIcon name="X" size={20}/></button>
-                                </div>
-
-                                <div className="flex-1 overflow-y-auto pr-2">
-                                    <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl mb-6">
-                                        <p className="text-xs text-blue-800 font-medium">Create a new container to allot views or leads before launching the AI Design Studio.</p>
-                                    </div>
-
-                                    <div className="input-group">
-                                        <label className="input-label">Assign to Store / Manager</label>
-                                        <select 
-                                            className="input-field text-slate-700 appearance-none font-medium cursor-pointer" 
-                                            value={newCamp.client} 
-                                            onChange={e=>setNewCamp({...newCamp, client: e.target.value})}
-                                        >
-                                            <option value="">-- Select Assigned User & Location --</option>
-                                            {users.map(u => (
-                                                <option key={u.id} value={u.client}>{u.client} - {u.name} ({u.role})</option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div className="input-group">
-                                        <label className="input-label">Campaign Name</label>
-                                        <input type="text" className="input-field" placeholder="e.g., Summer Laser Promo" value={newCamp.name} onChange={e=>setNewCamp({...newCamp, name: e.target.value})} />
-                                    </div>
-
-                                    <div className="input-group">
-                                        <label className="input-label">Product Type (Billing Model)</label>
-                                        <div className="flex bg-slate-100 p-1 rounded-xl">
-                                            <button onClick={()=>setNewCamp({...newCamp, type: 'Views'})} className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${newCamp.type === 'Views' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'}`}>Guaranteed Views</button>
-                                            <button onClick={()=>setNewCamp({...newCamp, type: 'Leads'})} className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${newCamp.type === 'Leads' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'}`}>Guaranteed Leads</button>
-                                        </div>
-                                    </div>
-
-                                    <div className="input-group">
-                                        <label className="input-label">Total Allotment Limit</label>
-                                        <input 
-                                            type="number" 
-                                            className="input-field font-mono text-lg" 
-                                            value={newCamp.allotted} 
-                                            onChange={e=>setNewCamp({...newCamp, allotted: e.target.value})} 
-                                        />
-                                        <p className="text-[10px] text-slate-500 mt-2 font-medium">The system will track fulfillment up to {parseInt(newCamp.allotted).toLocaleString() || 0} {newCamp.type.toLowerCase()}.</p>
-                                    </div>
-                                </div>
-
-                                <div className="pt-6 border-t mt-auto">
-                                    <button onClick={handleCreateCampaign} className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
-                                        Create & Allot Container
-                                    </button>
+                        <div className="overlay animate-in"><div className="slide-panel flex flex-col">
+                            <div className="flex justify-between items-center mb-8"><h2 className="text-2xl font-black text-slate-900">New Campaign</h2><button onClick={()=>setShowCreateModal(false)} className="p-2 text-slate-400 hover:text-slate-900"><SvgIcon name="X" size={20}/></button></div>
+                            <div className="input-group">
+                                <label className="input-label">Assign to Store / Manager</label>
+                                <select value={newAd.client} onChange={e=>setNewAd({...newAd, client: e.target.value})} className="input-field appearance-none cursor-pointer">
+                                    <option value="">-- Choose User --</option>
+                                    {users.map(u=>(<option key={u.id} value={u.client}>{u.client} ({u.name})</option>))}
+                                </select>
+                            </div>
+                            <div className="input-group"><label className="input-label">Campaign Title</label><input placeholder="e.g. Holiday Flash Sale" value={newAd.name} onChange={e=>setNewAd({...newAd, name:e.target.value})} className="input-field" /></div>
+                            <div className="input-group">
+                                <label className="input-label">Billing Model</label>
+                                <div className="flex bg-slate-100 p-1 rounded-xl">
+                                    <button onClick={()=>setNewAd({...newAd, type:'Views'})} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${newAd.type==='Views'?'bg-white shadow-sm text-blue-600':'text-slate-500'}`}>Guaranteed Views</button>
+                                    <button onClick={()=>setNewAd({...newAd, type:'Leads'})} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${newAd.type==='Leads'?'bg-white shadow-sm text-blue-600':'text-slate-500'}`}>Guaranteed Leads</button>
                                 </div>
                             </div>
-                        </div>
+                            <div className="input-group"><label className="input-label">Allotment Count</label><input type="number" value={newAd.allotted} onChange={e=>setNewAd({...newAd, allotted:e.target.value})} className="input-field font-mono font-bold" /></div>
+                            <button onClick={()=>{setCampaigns([...campaigns, {...newAd, id:Date.now(), status:'Active', consumed:0, leadsGenerated:0}]); setLogs([{id:Date.now(), tag:'Campaign', message:`Ad "${newAd.name}" created`, client:newAd.client, time:new Date()}, ...logs]); setShowCreateModal(false);}} className="w-full mt-auto bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition-all">Create Container</button>
+                        </div></div>
                     )}
 
-                    {/* --- CREATE USER MODAL --- */}
+                    {/* PROVISION USER MODAL */}
                     {showUserModal && (
-                        <div className="overlay-center animate-in">
-                            <div className="modal-panel bg-white p-8">
-                                <div className="flex justify-between items-center mb-6">
-                                    <h2 className="text-xl font-bold">Provision New User</h2>
-                                    <button onClick={()=>setShowUserModal(false)} className="text-slate-400 hover:text-slate-900"><SvgIcon name="X"/></button>
-                                </div>
-                                <div className="input-group"><label className="input-label">Full Name</label><input type="text" className="input-field" placeholder="John Doe" value={newUser.name} onChange={e=>setNewUser({...newUser, name: e.target.value})} /></div>
-                                <div className="input-group"><label className="input-label">Email Address</label><input type="email" className="input-field" placeholder="john@example.com" value={newUser.email} onChange={e=>setNewUser({...newUser, email: e.target.value})} /></div>
-                                <div className="input-group">
-                                    <label className="input-label">Role Access</label>
-                                    <select value={newUser.role} onChange={e=>setNewUser({...newUser, role: e.target.value})} className="input-field text-slate-700 appearance-none font-medium">
-                                        <option value="Store Manager">Store Manager (Single Location)</option>
-                                        <option value="Regional Manager">Regional Manager (Multiple Locations)</option>
-                                        <option value="HQ Admin">HQ Admin (Global Access)</option>
-                                    </select>
-                                </div>
-                                <div className="input-group"><label className="input-label">Assigned Client/Store</label><input type="text" className="input-field" placeholder="e.g., Downtown Dental" value={newUser.client} onChange={e=>setNewUser({...newUser, client: e.target.value})} /></div>
-                                <div className="pt-4 mt-4 flex justify-end gap-3">
-                                    <button onClick={()=>setShowUserModal(false)} className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl">Cancel</button>
-                                    <button onClick={handleCreateUser} className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-md hover:bg-blue-700">Create User</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* --- EDIT / PREVIEW MODAL (Split View) --- */}
-                    {(editingAd || previewAd) && (
-                        <div className="overlay-center animate-in p-4 md:p-10">
-                            <div className="modal-panel w-full max-w-5xl flex flex-col md:flex-row relative">
-                                <button onClick={()=>{setEditingAd(null); setPreviewAd(null);}} className="absolute top-4 right-4 z-50 w-8 h-8 bg-slate-900/50 text-white rounded-full flex items-center justify-center backdrop-blur hover:bg-slate-900"><SvgIcon name="X"/></button>
-                                
-                                {/* Left Side: Edit Controls (Only show if editing) */}
-                                {editingAd && (
-                                    <div className="flex-1 p-6 md:p-8 overflow-y-auto bg-slate-50 border-r border-slate-200">
-                                        <h2 className="text-2xl font-bold mb-1">Edit Campaign</h2>
-                                        <p className="text-sm text-slate-500 mb-6">Updating: {editForm.client}</p>
-
-                                        <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
-                                            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-4">Ad Creative</h3>
-                                            <div className="input-group"><label className="input-label">Headline</label><input type="text" className="input-field" value={editForm.headline} onChange={e=>setEditForm({...editForm, headline: e.target.value})} /></div>
-                                            <div className="input-group"><label className="input-label">Subtext / Body</label><textarea className="input-field resize-none" rows="2" value={editForm.subtext} onChange={e=>setEditForm({...editForm, subtext: e.target.value})} /></div>
-                                            <div className="input-group"><label className="input-label">Image URL</label><input type="text" className="input-field" value={editForm.image} onChange={e=>setEditForm({...editForm, image: e.target.value})} /></div>
-                                        </div>
-
-                                        <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 shadow-sm">
-                                            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-4">Configuration</h3>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="input-group"><label className="input-label">Allotment ({editForm.type})</label><input type="number" className="input-field" value={editForm.allotted} onChange={e=>setEditForm({...editForm, allotted: e.target.value})} /></div>
-                                                <div className="input-group">
-                                                    <label className="input-label">Theme Color</label>
-                                                    <div className="flex gap-2">
-                                                        <input type="color" value={editForm.color} onChange={e=>setEditForm({...editForm, color: e.target.value})} className="w-10 h-10 rounded cursor-pointer border border-slate-200 p-0.5" />
-                                                        <input type="text" value={editForm.color} onChange={e=>setEditForm({...editForm, color: e.target.value})} className="input-field flex-1 font-mono text-xs uppercase" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <button onClick={saveEdit} className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold shadow-md hover:bg-blue-700">Save Changes</button>
-                                    </div>
-                                )}
-
-                                {/* Right Side: iPhone Preview */}
-                                <div className="w-full md:w-[400px] bg-slate-200 p-6 flex flex-col items-center justify-center shrink-0 overflow-y-auto relative">
-                                    <div className="absolute top-4 left-4 bg-slate-800 text-white px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest z-10 shadow-lg">Client Preview</div>
-                                    
-                                    {/* Pass the correct object down to preview */}
-                                    {(()=>{
-                                        const adData = editingAd ? editForm : previewAd;
-                                        return (
-                                            <div className="iphone-frame shadow-2xl">
-                                                <div className="iphone-notch"></div>
-                                                
-                                                {/* LIVE PROGRESS BAR */}
-                                                <div className="timer-bar-preview">
-                                                    <div className="timer-progress-fill transition-all duration-1000 ease-linear" style={{backgroundColor: adData.color, width: `${((25 - previewTime) / 25) * 100}%`}}></div>
-                                                </div>
-                                                
-                                                <div className="ad-preview-scroll bg-white p-5 pt-12 text-center">
-                                                    {/* LIVE COUNTDOWN TEXT */}
-                                                    {previewUnlocked ? (
-                                                        <p className="text-[10px] font-bold text-emerald-500 mb-4 uppercase tracking-widest">✅ Offer Unlocked</p>
-                                                    ) : (
-                                                        <p className="text-[10px] font-bold text-slate-400 mb-4 uppercase tracking-widest animate-pulse">Wait {previewTime}s to Unlock</p>
-                                                    )}
-
-                                                    <div className="aspect-[4/5] bg-slate-100 rounded-xl overflow-hidden mb-5 border border-slate-100">
-                                                        <img src={adData.image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600&q=80'} className="w-full h-full object-cover" alt="Preview" />
-                                                    </div>
-                                                    <h4 className="text-xl font-black leading-tight mb-2 text-slate-900">{adData.headline || adData.name}</h4>
-                                                    <p className="text-xs text-slate-600 mb-6">{adData.subtext || 'Special offer inside.'}</p>
-                                                    
-                                                    <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 text-left mb-6">
-                                                        <div className="preview-form-input py-2">Full Name</div>
-                                                        <div className="preview-form-input py-2">Email</div>
-                                                        <div className="preview-form-input py-2 mb-0">Phone</div>
-                                                    </div>
-
-                                                    {/* LIVE UNLOCK BUTTON */}
-                                                    <button 
-                                                        className="w-full py-3.5 rounded-xl font-bold text-sm border-2 uppercase tracking-wider transition-all duration-500" 
-                                                        style={{
-                                                            color: previewUnlocked ? 'white' : adData.color, 
-                                                            backgroundColor: previewUnlocked ? adData.color : 'transparent',
-                                                            borderColor: adData.color,
-                                                            borderStyle: previewUnlocked ? 'solid' : 'dashed',
-                                                            opacity: previewUnlocked ? 1 : 0.5
-                                                        }}
-                                                    >
-                                                        {previewUnlocked ? (adData.cta || 'Claim Offer') : `${adData.cta || 'Claim Offer'} (Locked)`}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        )
-                                    })()}
-                                </div>
-                            </div>
-                        </div>
+                        <div className="overlay-center animate-in"><div className="bg-white p-10 rounded-[2.5rem] w-full max-w-sm shadow-2xl relative">
+                            <button onClick={()=>setShowUserModal(false)} className="absolute top-6 right-6 text-slate-300 hover:text-slate-900"><SvgIcon name="X" size={20}/></button>
+                            <h2 className="text-xl font-black text-center mb-8">Provision Client User</h2>
+                            <input placeholder="Manager Name" onChange={e=>setNewUser({...newUser, name:e.target.value})} className="input-field mb-4" />
+                            <input placeholder="Email Address" onChange={e=>setNewUser({...newUser, email:e.target.value})} className="input-field mb-4" />
+                            <input placeholder="Store / Store Name" onChange={e=>setNewUser({...newUser, client:e.target.value})} className="input-field mb-8" />
+                            <button onClick={()=>{setUsers([...users, {...newUser, id:Date.now()}]); setLogs([{id:Date.now(), tag:'System', message:`User ${newUser.name} provisioned`, client:newUser.client, time:new Date()}, ...logs]); setShowUserModal(false);}} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-md hover:bg-blue-700 transition-all">Add to Directory</button>
+                        </div></div>
                     )}
                 </div>
             );
