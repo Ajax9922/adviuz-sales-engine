@@ -79,6 +79,16 @@
             { id: 'u2', name: 'James Taylor', email: 'marketing@citydental.com', client: 'Eastern Canada Dental', role: 'Regional Manager', status: 'Active' }
         ];
 
+        const INITIAL_LEADS = [
+            { id: 'l1', name: 'Sarah Jenkins', phone: '416-555-0198', campaign_id: 'TOR_01', stage: 'Closed Won', created_at: new Date().toISOString() },
+            { id: 'l2', name: 'Mike Ross', phone: '416-555-8821', campaign_id: 'TOR_01', stage: 'Contacted', created_at: new Date().toISOString() }
+        ];
+
+        const INITIAL_LOGS = [
+            { id: 'log1', tag: 'System', message: 'Master Admin session initialized', client: 'Adviuz Cloud', time: new Date() },
+            { id: 'log2', tag: 'Campaign', message: 'Design deployment successful for Western Canada', client: 'Western Canada Clinic', time: new Date() }
+        ];
+
         function SvgIcon({ name, size = 18, className = "" }) {
             const icons = {
                 Grid: <path d="M3 3h7v7H3V3zm11 0h7v7h-7V3zm0 11h7v7h-7v-7zM3 14h7v7H3v-7z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
@@ -131,6 +141,9 @@
             
             const [campaigns, setCampaigns] = useState(INITIAL_CAMPAIGNS);
             const [users, setUsers] = useState(INITIAL_USERS);
+            const [leads, setLeads] = useState(INITIAL_LEADS);
+            const [logs, setLogs] = useState(INITIAL_LOGS);
+            
             const [selectedCampaign, setSelectedCampaign] = useState(null);
             const [searchQuery, setSearchQuery] = useState('');
 
@@ -141,7 +154,6 @@
                 img: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=600'
             });
             const [manualCode, setManualCode] = useState(JSON.stringify(config, null, 2));
-            const [previewTime, setPreviewTime] = useState(0); 
             const [chatHistory, setChatHistory] = useState([]);
             const [userInput, setUserInput] = useState("");
             const [isAiThinking, setIsAiThinking] = useState(false);
@@ -150,13 +162,13 @@
             useEffect(() => { setManualCode(JSON.stringify(config, null, 2)); }, [config]);
             useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [chatHistory]);
 
-            // --- AI Logic (DIRECT FETCH FOR BETTER DEBUGGING) ---
+            // --- FIXED AI LOGIC (Merging instruction into user content to fix Error 400) ---
             const callAI = async (msg) => {
                 if(!msg) return;
                 setIsAiThinking(true);
                 setChatHistory(p => [...p, { role: 'user', content: msg }]);
 
-                const systemPrompt = `You are the Adviuz AI Architect. Design a landing page for the client.
+                const systemContext = `SYSTEM INSTRUCTIONS: You are the Adviuz AI Architect. Design a high-conversion landing page.
                 Return a friendly message and a JSON block wrapped in \`\`\`json ... \`\`\`.
                 Valid keys: color (hex), headline, subtext, cta (ALL CAPS), timer (number).`;
                 
@@ -165,8 +177,11 @@
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            contents: [{ parts: [{ text: msg }] }],
-                            systemInstruction: { parts: [{ text: systemPrompt }] }
+                            contents: [
+                                { 
+                                    parts: [{ text: `${systemContext}\n\nUSER REQUEST: ${msg}` }] 
+                                }
+                            ]
                         })
                     });
 
@@ -176,7 +191,7 @@
                     }
 
                     const data = await response.json();
-                    const aiRaw = data.candidates?.[0]?.content?.parts?.[0]?.text || "Listening...";
+                    const aiRaw = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response content received.";
                     const jsonMatch = aiRaw.match(/```json\n([\s\S]*?)\n```/);
                     
                     if (jsonMatch) {
@@ -187,7 +202,7 @@
                     const cleanMsg = aiRaw.replace(/```json[\s\S]*?```/, "").trim();
                     setChatHistory(p => [...p, { role: 'model', content: cleanMsg }]);
                 } catch (e) {
-                    setChatHistory(p => [...p, { role: 'model', content: `CONNECTION ERROR: ${e.message}. Please verify your API Key in Google AI Studio.` }]);
+                    setChatHistory(p => [...p, { role: 'model', content: `CONNECTION ERROR: ${e.message}. Please verify your API Key or try a different prompt.` }]);
                 } finally { setIsAiThinking(false); }
             };
 
@@ -195,12 +210,18 @@
                 try {
                     const parsed = JSON.parse(manualCode);
                     setConfig(prev => ({ ...prev, ...parsed }));
-                    setChatHistory(p => [...p, { role: 'model', content: "Manual design configuration applied successfully." }]);
+                    setChatHistory(p => [...p, { role: 'model', content: "External design configuration applied successfully." }]);
                     setShowCodeEditor(false);
                 } catch (err) {
                     alert("Invalid JSON format. Please ensure you paste valid code from Claude or Gemini.");
                 }
             };
+
+            const toggleStatus = (id) => {
+                setCampaigns(prev => prev.map(c => c.id === id ? { ...c, status: c.status === 'Active' ? 'Paused' : 'Active' } : c));
+            };
+
+            const filteredCampaigns = campaigns.filter(c => c.client.toLowerCase().includes(searchQuery.toLowerCase()) || c.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
             if (!isLoggedIn) return (
                 <div className="flex h-screen items-center justify-center bg-[#0f172a] px-4">
@@ -220,11 +241,10 @@
                     <aside className="w-64 bg-[#0f172a] text-slate-400 p-6 hidden md:flex flex-col shrink-0 shadow-xl">
                         <div className="flex items-center gap-3 mb-10 text-white"><SvgIcon name="Adviuz" size={32}/><h1 className="text-xl font-bold tracking-tight">Adviuz</h1></div>
                         <nav className="space-y-1 flex-1">
-                            {['campaigns', 'global-leads', 'directory', 'system-logs'].map(tab => (
-                                <button key={tab} onClick={()=>{setActiveTab(tab); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all capitalize ${activeTab===tab && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}>
-                                    <SvgIcon name={tab === 'campaigns' ? 'Grid' : tab === 'directory' ? 'Users' : 'List'} size={18}/> {tab.replace('-', ' ')}
-                                </button>
-                            ))}
+                            <button onClick={()=>{setActiveTab('campaigns'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='campaigns' && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}><SvgIcon name="Grid" size={18}/> Campaigns</button>
+                            <button onClick={()=>{setActiveTab('global-leads'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='global-leads' && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}><SvgIcon name="List" size={18}/> Global Leads</button>
+                            <button onClick={()=>{setActiveTab('directory'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='directory' && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}><SvgIcon name="Users" size={18}/> Directory</button>
+                            <button onClick={()=>{setActiveTab('system-logs'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='system-logs' && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}><SvgIcon name="Activity" size={18}/> System Logs</button>
                         </nav>
                         <div className="pt-6 border-t border-slate-800 text-center">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-2">CEO ACCESS</p>
@@ -246,20 +266,53 @@
                                         <div className="table-container">
                                             <table className="w-full text-left">
                                                 <thead><tr><th>Campaign / Store</th><th>Fulfillment</th><th className="text-center">Leads</th><th>Status</th><th className="text-right">Action</th></tr></thead>
-                                                <tbody>{campaigns.map(c=>(<tr key={c.id}>
+                                                <tbody>{filteredCampaigns.map(c=>(<tr key={c.id}>
                                                     <td><p className="font-bold text-slate-900">{c.name}</p><p className="text-[10px] text-slate-400 font-bold uppercase">{c.client}</p></td>
                                                     <td className="w-56"><ProgressBar consumed={c.consumed} allotted={c.allotted} /></td>
                                                     <td className="text-center font-black text-indigo-600 text-lg">{c.leadsGenerated}</td>
-                                                    <td><span className="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider">{c.status}</span></td>
+                                                    <td><div className="flex items-center gap-2"><div className="toggle-switch" data-state={c.status.toLowerCase()} onClick={()=>toggleStatus(c.id)}><span className="toggle-thumb"></span></div><span className="text-[10px] font-bold uppercase text-slate-500">{c.status}</span></div></td>
                                                     <td className="text-right"><button onClick={()=>{setSelectedCampaign(c); setView('studio');}} className="bg-slate-50 border border-slate-200 hover:border-indigo-200 text-slate-600 hover:text-indigo-600 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">AI Studio</button></td>
                                                 </tr>))}</tbody>
                                             </table>
                                         </div>
                                     )}
-                                    {activeTab !== 'campaigns' && (
-                                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-slate-200 border-dashed">
-                                            <SvgIcon name="List" size={48} className="text-slate-200 mb-4" />
-                                            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Section Under Construction</p>
+
+                                    {activeTab === 'global-leads' && (
+                                        <div className="table-container">
+                                            <table className="w-full text-left">
+                                                <thead><tr><th>Lead Name</th><th>Campaign ID</th><th>Phone</th><th>Stage</th><th className="text-right">Received</th></tr></thead>
+                                                <tbody>{leads.map(l=>(<tr key={l.id}>
+                                                    <td className="font-bold text-slate-900">{l.name}</td>
+                                                    <td className="text-xs font-mono text-indigo-600">{l.campaign_id}</td>
+                                                    <td className="text-slate-500">{l.phone}</td>
+                                                    <td><span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">{l.stage}</span></td>
+                                                    <td className="text-right text-[10px] text-slate-400 font-medium">Recently</td>
+                                                </tr>))}</tbody>
+                                            </table>
+                                        </div>
+                                    )}
+
+                                    {activeTab === 'directory' && (
+                                        <div className="table-container">
+                                            <table className="w-full text-left">
+                                                <thead><tr><th>Manager Name</th><th>Account Email</th><th>Assigned Store</th><th>Role</th><th className="text-right">Status</th></tr></thead>
+                                                <tbody>{users.map(u=>(<tr key={u.id}>
+                                                    <td className="font-bold text-slate-900">{u.name}</td>
+                                                    <td className="text-slate-500">{u.email}</td>
+                                                    <td className="font-medium">{u.client}</td>
+                                                    <td><span className="text-xs font-bold text-slate-400 uppercase">{u.role}</span></td>
+                                                    <td className="text-right"><span className="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">{u.status}</span></td>
+                                                </tr>))}</tbody>
+                                            </table>
+                                        </div>
+                                    )}
+
+                                    {activeTab === 'system-logs' && (
+                                        <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm">
+                                            {logs.map(log => (<div key={log.id} className="flex gap-4 items-start border-b border-slate-50 pb-4 last:border-0 last:pb-0">
+                                                <div className={`w-2 h-2 mt-2 rounded-full shrink-0 ${log.tag === 'System' ? 'bg-slate-300' : 'bg-indigo-500'}`}></div>
+                                                <div><p className="text-sm font-semibold text-slate-800">{log.message}</p><p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{log.tag} • {new Date(log.time).toLocaleTimeString()} • {log.client}</p></div>
+                                            </div>))}
                                         </div>
                                     )}
                                 </div>
@@ -286,28 +339,25 @@
                                 </header>
 
                                 <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-white relative">
-                                    
-                                    {/* Manual Code Editor Panel */}
                                     {showCodeEditor && (
                                         <div className="absolute inset-y-0 left-0 w-full md:w-[500px] bg-[#0f172a] z-50 shadow-2xl flex flex-col animate-in">
                                             <div className="p-4 border-b border-slate-800 flex justify-between items-center shrink-0">
-                                                <h4 className="text-white font-black text-[10px] uppercase tracking-[0.2em]">External Code Importer</h4>
+                                                <h4 className="text-white font-black text-[10px] uppercase tracking-[0.2em]">Design Code Importer</h4>
                                                 <button onClick={() => setShowCodeEditor(false)} className="text-slate-500 hover:text-white"><SvgIcon name="X" /></button>
                                             </div>
                                             <div className="flex-1 p-6">
                                                 <textarea 
                                                     value={manualCode} onChange={(e) => setManualCode(e.target.value)}
                                                     className="w-full h-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-emerald-400 font-mono text-xs outline-none focus:border-indigo-500 resize-none shadow-inner"
-                                                    placeholder='Paste JSON here...'
+                                                    placeholder='Paste JSON design data here...'
                                                 />
                                             </div>
                                             <div className="p-4 bg-slate-900 border-t border-slate-800 flex gap-3">
-                                                <button onClick={applyManualCode} className="flex-1 py-3 text-[10px] font-black uppercase bg-indigo-600 text-white rounded-xl shadow-lg">Apply Configuration</button>
+                                                <button onClick={applyManualCode} className="flex-1 py-3 text-[10px] font-black uppercase bg-indigo-600 text-white rounded-xl shadow-lg">Apply External Design</button>
                                             </div>
                                         </div>
                                     )}
 
-                                    {/* Chat Pane */}
                                     <div className="flex-1 flex flex-col border-r border-slate-100">
                                         <div className="flex-1 p-8 space-y-6 overflow-y-auto no-scrollbar bg-slate-50/30">
                                             <div className="chat-bubble-ai">Hi! I'm the AI Architect ({selectedModel}). Ready to design for <b>{selectedCampaign?.region}</b>.</div>
@@ -329,7 +379,6 @@
                                         </div>
                                     </div>
 
-                                    {/* Preview Pane (EXACT MATCH TO SCREENSHOT) */}
                                     <div className="w-full md:w-[460px] bg-white flex flex-col items-center shrink-0 p-8 overflow-y-auto no-scrollbar border-l border-slate-100">
                                         <div className="w-full flex justify-between items-center mb-6 px-4">
                                             <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Live Preview</span>
@@ -341,8 +390,8 @@
                                             <div className="ad-preview-scroll p-6 pt-12 text-center bg-white h-full flex flex-col">
                                                 <div className="mb-4">
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Brand Logo</p>
-                                                    <p className="text-[10px] font-black text-emerald-500 flex items-center justify-center gap-1">
-                                                        <SvgIcon name="Check" size={12}/> UNLOCKED
+                                                    <p className="text-[10px] font-black text-emerald-500 flex items-center justify-center gap-1 uppercase tracking-widest">
+                                                        <SvgIcon name="Check" size={12}/> Unlocked
                                                     </p>
                                                 </div>
 
