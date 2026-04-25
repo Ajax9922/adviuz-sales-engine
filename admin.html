@@ -31,7 +31,7 @@
         .input-field:focus { border-color: #4f46e5; background: white; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         
         /* iPhone Simulation */
-        .iphone-frame { width: 280px; height: 580px; border: 10px solid #0f172a; border-radius: 36px; position: relative; background: white; overflow: hidden; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2); flex-shrink: 0; }
+        .iphone-frame { width: 280px; height: 580px; border: 10px solid #0f172a; border-radius: 40px; position: relative; background: white; overflow: hidden; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2); flex-shrink: 0; }
         .iphone-notch { width: 100px; height: 18px; background: #0f172a; position: absolute; top: 0; left: 50%; transform: translateX(-50%); border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; z-index: 40; }
         .timer-bar-preview { height: 4px; background: #e2e8f0; width: 100%; position: absolute; top: 0; left: 0; z-index: 30; }
         .timer-progress-fill { height: 100%; width: 0%; transition: width 1s linear; background-color: #4f46e5; }
@@ -65,7 +65,7 @@
     <script type="text/babel">
         const { useState, useMemo, useEffect, useRef } = React;
 
-        // --- SECURITY WARNING: ENSURE THIS KEY IS VALID & ACTIVE IN GOOGLE AI STUDIO ---
+        // --- PRODUCTION KEY ---
         const apiKey = "AIzaSyDlyodQmaASdAiCEJTaQYryhbuGhvzl524"; 
 
         // --- MOCK INITIAL DATA ---
@@ -77,16 +77,6 @@
         const INITIAL_USERS = [
             { id: 'u1', name: 'Dr. Amanda West', email: 'admin@pureskin.com', client: 'Western Canada Clinic', role: 'Store Manager', status: 'Active' },
             { id: 'u2', name: 'James Taylor', email: 'marketing@citydental.com', client: 'Eastern Canada Dental', role: 'Regional Manager', status: 'Active' }
-        ];
-
-        const INITIAL_LEADS = [
-            { id: 'l1', name: 'Michael Chen', phone: '416-555-0198', client: 'Western Canada Clinic', campaign: 'Summer Laser Promo', date: new Date().toISOString(), stage: 'New' },
-            { id: 'l2', name: 'Sarah Jenkins', phone: '604-555-8821', client: 'Eastern Canada Dental', campaign: 'Implant Consultation', date: new Date().toISOString(), stage: 'Contacted' }
-        ];
-
-        const INITIAL_LOGS = [
-            { id: 'log1', tag: 'System', message: 'Master Admin logged in from IP 192.168.1.1', client: 'System', time: new Date() },
-            { id: 'log2', tag: 'Campaign', message: 'Campaign "Summer Laser Promo" started for Western Canada', client: 'Western Canada Clinic', time: new Date(Date.now() - 3600000) }
         ];
 
         function SvgIcon({ name, size = 18, className = "" }) {
@@ -103,8 +93,8 @@
                 Cpu: <path d="M4 4h16v16H4V4zm5 0V2m6 2V2M4 9H2m2 6H2m18-6h2m-2 6h2M9 22v-2m6 2v-2" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
                 Zap: <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
                 Sparkles: <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M14 12a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
-                Phone: <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
                 Check: <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+                Code: <path d="M16 18l6-6-6-6M8 6l-6 6 6 6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
                 Adviuz: (
                     <g>
                         <rect width="24" height="24" rx="6" fill="url(#grad1)" />
@@ -116,13 +106,13 @@
             return <svg width={size} height={size} viewBox="0 0 24 24" className={className} xmlns="http://www.w3.org/2000/svg">{icons[name] || null}</svg>;
         }
 
-        const ProgressBar = ({ consumed, allotted, type }) => {
+        const ProgressBar = ({ consumed, allotted }) => {
             const pct = Math.min(100, Math.round((consumed / allotted) * 100)) || 0;
             return (
                 <div className="w-full">
                     <div className="flex justify-between text-[10px] font-bold text-slate-500 mb-1">
                         <span>{consumed.toLocaleString()}</span>
-                        <span>{allotted.toLocaleString()} {type}</span>
+                        <span>{allotted.toLocaleString()}</span>
                     </div>
                     <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                         <div className={`h-full bg-indigo-600`} style={{width: `${pct}%`}}></div>
@@ -137,17 +127,10 @@
             const [activeTab, setActiveTab] = useState('campaigns');
             const [view, setView] = useState('dashboard'); 
             const [selectedModel, setSelectedModel] = useState('GEMINI');
+            const [showCodeEditor, setShowCodeEditor] = useState(false);
             
             const [campaigns, setCampaigns] = useState(INITIAL_CAMPAIGNS);
             const [users, setUsers] = useState(INITIAL_USERS);
-            const [leads, setLeads] = useState(INITIAL_LEADS);
-            const [logs, setLogs] = useState(INITIAL_LOGS);
-
-            const [showCreateModal, setShowCreateModal] = useState(false);
-            const [showUserModal, setShowUserModal] = useState(false);
-            const [newAd, setNewAd] = useState({ client: '', name: '', allotted: 5000, type: 'Views' });
-            const [newUser, setNewUser] = useState({ name: '', email: '', client: '', role: 'Store Manager' });
-            
             const [selectedCampaign, setSelectedCampaign] = useState(null);
             const [searchQuery, setSearchQuery] = useState('');
 
@@ -157,110 +140,76 @@
                 color: '#4f46e5', timer: 25, cta: 'CLAIM OFFER',
                 img: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=600'
             });
-            const [previewTime, setPreviewTime] = useState(7); 
+            const [manualCode, setManualCode] = useState(JSON.stringify(config, null, 2));
+            const [previewTime, setPreviewTime] = useState(0); 
             const [chatHistory, setChatHistory] = useState([]);
             const [userInput, setUserInput] = useState("");
             const [isAiThinking, setIsAiThinking] = useState(false);
             const chatEndRef = useRef(null);
 
-            // Timer Logic for iPhone Preview
-            useEffect(() => {
-                let interval;
-                if (view === 'studio' && previewTime > 0) {
-                    interval = setInterval(() => setPreviewTime(prev => prev - 1), 1000);
-                }
-                return () => clearInterval(interval);
-            }, [view, previewTime]);
-
-            // Scroll Chat
+            useEffect(() => { setManualCode(JSON.stringify(config, null, 2)); }, [config]);
             useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [chatHistory]);
 
-            // --- HELPER: API Fetch with exponential backoff ---
-            const fetchWithRetry = async (url, options, retries = 5, backoff = 1000) => {
-                try {
-                    const res = await fetch(url, options);
-                    if (!res.ok) throw res;
-                    return await res.json();
-                } catch (err) {
-                    if (retries > 0 && (err.status === 429 || err.status >= 500)) {
-                        await new Promise(r => setTimeout(r, backoff));
-                        return fetchWithRetry(url, options, retries - 1, backoff * 2);
-                    }
-                    throw err;
-                }
-            };
-
-            // --- AI Logic (Updated to imagen-4.0-generate-001) ---
-            const generateImage = async (prompt) => {
-                try {
-                    const data = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ instances: { prompt: prompt }, parameters: { sampleCount: 1 } })
-                    });
-                    if (data.predictions?.[0]?.bytesBase64Encoded) {
-                        const base64 = data.predictions[0].bytesBase64Encoded;
-                        setConfig(prev => ({ ...prev, img: `data:image/png;base64,${base64}` }));
-                        setChatHistory(p => [...p, { role: 'model', content: "Generated a new visual asset based on your prompt." }]);
-                    } else {
-                        throw new Error("Empty prediction");
-                    }
-                } catch (e) {
-                    setChatHistory(p => [...p, { role: 'model', content: "Visual generation restricted. Please check your project billing or API permissions." }]);
-                }
-            };
-
+            // --- AI Logic (DIRECT FETCH FOR BETTER DEBUGGING) ---
             const callAI = async (msg) => {
                 if(!msg) return;
                 setIsAiThinking(true);
                 setChatHistory(p => [...p, { role: 'user', content: msg }]);
 
-                const isImageRequest = /\b(image|design|photo|picture|graphic|logo|visual)\b/i.test(msg);
-                if (isImageRequest) {
-                    await generateImage(msg);
-                    setIsAiThinking(false);
-                    return;
-                }
-
-                const sys = `You are the Adviuz AI Architect. Design a landing page for ${selectedCampaign?.region || 'the client'}.
+                const systemPrompt = `You are the Adviuz AI Architect. Design a landing page for the client.
                 Return a friendly message and a JSON block wrapped in \`\`\`json ... \`\`\`.
-                Valid keys: color (hex), headline (short title case), subtext (sentence), cta (ALL CAPS), timer (number).`;
+                Valid keys: color (hex), headline, subtext, cta (ALL CAPS), timer (number).`;
                 
                 try {
-                    const data = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: msg }] }], systemInstruction: { parts: [{ text: sys }] } })
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: msg }] }],
+                            systemInstruction: { parts: [{ text: systemPrompt }] }
+                        })
                     });
 
-                    const aiRaw = data.candidates?.[0]?.content?.parts?.[0]?.text || "I am currently adjusting the layout for you.";
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(`API Error ${response.status}: ${errData.error?.message || response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    const aiRaw = data.candidates?.[0]?.content?.parts?.[0]?.text || "Listening...";
                     const jsonMatch = aiRaw.match(/```json\n([\s\S]*?)\n```/);
+                    
                     if (jsonMatch) {
                         const updates = JSON.parse(jsonMatch[1]);
                         setConfig(prev => ({ ...prev, ...updates }));
-                        if(updates.timer) setPreviewTime(updates.timer);
                     }
-                    const cleanMsg = aiRaw.replace(/```json[\s\S]*?```/, "").trim() || "Applied the design changes.";
+                    
+                    const cleanMsg = aiRaw.replace(/```json[\s\S]*?```/, "").trim();
                     setChatHistory(p => [...p, { role: 'model', content: cleanMsg }]);
                 } catch (e) {
-                    setChatHistory(p => [...p, { role: 'model', content: "The AI session timed out. Please try again." }]);
+                    setChatHistory(p => [...p, { role: 'model', content: `CONNECTION ERROR: ${e.message}. Please verify your API Key in Google AI Studio.` }]);
                 } finally { setIsAiThinking(false); }
             };
 
-            const toggleStatus = (id) => {
-                setCampaigns(prev => prev.map(c => c.id === id ? { ...c, status: c.status === 'Active' ? 'Paused' : 'Active' } : c));
+            const applyManualCode = () => {
+                try {
+                    const parsed = JSON.parse(manualCode);
+                    setConfig(prev => ({ ...prev, ...parsed }));
+                    setChatHistory(p => [...p, { role: 'model', content: "Manual design configuration applied successfully." }]);
+                    setShowCodeEditor(false);
+                } catch (err) {
+                    alert("Invalid JSON format. Please ensure you paste valid code from Claude or Gemini.");
+                }
             };
-
-            const filteredCampaigns = campaigns.filter(c => c.client.toLowerCase().includes(searchQuery.toLowerCase()) || c.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
             if (!isLoggedIn) return (
                 <div className="flex h-screen items-center justify-center bg-[#0f172a] px-4">
                     <form onSubmit={(e)=>{e.preventDefault(); if(pin === 'admin') setIsLoggedIn(true); else alert('Invalid PIN');}} className="bg-white p-10 rounded-[2.5rem] w-full max-w-sm text-center shadow-2xl animate-in">
                         <SvgIcon name="Adviuz" size={48} className="mx-auto mb-6"/>
-                        <h1 className="text-2xl font-bold text-slate-900 mb-2">Master Admin</h1>
-                        <p className="text-sm text-slate-500 mb-8">Authorized Personnel Only</p>
-                        <input type="password" placeholder="Enter PIN (admin)" value={pin} onChange={e=>setPin(e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center text-xl tracking-[0.5em] font-bold outline-none focus:border-blue-500 mb-6" />
-                        <button type="submit" className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-indigo-700 transition-all">Secure Login</button>
+                        <h1 className="text-2xl font-bold text-slate-900 mb-2 font-black italic uppercase">Master Admin</h1>
+                        <p className="text-xs text-slate-400 mb-8 uppercase tracking-[0.2em] font-bold">Authorized Agency Personnel Only</p>
+                        <input type="password" placeholder="Enter PIN (admin)" value={pin} onChange={e=>setPin(e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center text-xl tracking-[0.5em] font-bold outline-none focus:border-indigo-500 mb-6" />
+                        <button type="submit" className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-indigo-700 transition-all">Secure Login</button>
                     </form>
                 </div>
             );
@@ -271,14 +220,15 @@
                     <aside className="w-64 bg-[#0f172a] text-slate-400 p-6 hidden md:flex flex-col shrink-0 shadow-xl">
                         <div className="flex items-center gap-3 mb-10 text-white"><SvgIcon name="Adviuz" size={32}/><h1 className="text-xl font-bold tracking-tight">Adviuz</h1></div>
                         <nav className="space-y-1 flex-1">
-                            <button onClick={()=>{setActiveTab('campaigns'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='campaigns' && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}><SvgIcon name="Grid" size={18}/> Campaigns</button>
-                            <button onClick={()=>{setActiveTab('leads'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='leads' && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}><SvgIcon name="List" size={18}/> Global Leads</button>
-                            <button onClick={()=>{setActiveTab('users'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='users' && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}><SvgIcon name="Users" size={18}/> Directory</button>
-                            <button onClick={()=>{setActiveTab('logs'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='logs' && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}><SvgIcon name="Activity" size={18}/> System Logs</button>
+                            {['campaigns', 'global-leads', 'directory', 'system-logs'].map(tab => (
+                                <button key={tab} onClick={()=>{setActiveTab(tab); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all capitalize ${activeTab===tab && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}>
+                                    <SvgIcon name={tab === 'campaigns' ? 'Grid' : tab === 'directory' ? 'Users' : 'List'} size={18}/> {tab.replace('-', ' ')}
+                                </button>
+                            ))}
                         </nav>
-                        <div className="pt-6 border-t border-slate-800">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-2 text-center">CEO ACCESS</p>
-                            <button onClick={()=>setIsLoggedIn(false)} className="w-full flex items-center justify-center gap-2 py-2 text-xs text-rose-500 font-bold hover:text-rose-400 transition-colors tracking-tight"><SvgIcon name="X" size={14}/> Secure Logout</button>
+                        <div className="pt-6 border-t border-slate-800 text-center">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-2">CEO ACCESS</p>
+                            <button onClick={()=>setIsLoggedIn(false)} className="w-full flex items-center justify-center gap-2 py-2 text-xs text-rose-500 font-bold hover:text-rose-400 transition-colors tracking-tight font-black uppercase"><SvgIcon name="X" size={14}/> Secure Logout</button>
                         </div>
                     </aside>
 
@@ -288,54 +238,28 @@
                             <div className="flex-1 flex flex-col overflow-hidden animate-in">
                                 <header className="bg-white border-b px-8 py-6 flex justify-between items-center shrink-0 shadow-sm">
                                     <h2 className="text-2xl font-bold capitalize text-slate-900">{activeTab.replace('-', ' ')}</h2>
-                                    <button onClick={()=>activeTab==='users'?setShowUserModal(true):setShowCreateModal(true)} className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-md hover:bg-indigo-700 transition-all"><SvgIcon name="Plus" size={16}/> Create {activeTab==='users'?'User':'Ad'}</button>
+                                    <button className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-md hover:bg-indigo-700 transition-all"><SvgIcon name="Plus" size={16}/> Create {activeTab === 'directory' ? 'User' : 'Ad'}</button>
                                 </header>
 
                                 <div className="flex-1 p-6 md:p-8 overflow-y-auto no-scrollbar">
                                     {activeTab === 'campaigns' && (
-                                        <>
-                                            <div className="bg-white p-4 rounded-2xl border border-slate-200 mb-6 flex items-center gap-4 shadow-sm">
-                                                <input placeholder="Filter client or ad..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} className="input-field max-w-sm" />
-                                            </div>
-                                            <div className="hidden md:block table-container">
-                                                <table className="w-full text-left">
-                                                    <thead><tr><th>Client / Ad Title</th><th>Progress</th><th className="text-center">Leads Gen</th><th>Status</th><th className="text-right">Action</th></tr></thead>
-                                                    <tbody>{filteredCampaigns.map(c=>(<tr key={c.id}>
-                                                        <td><p className="font-bold text-slate-900">{c.client}</p><p className="text-xs text-slate-500 font-medium">{c.name}</p></td>
-                                                        <td className="w-56"><ProgressBar consumed={c.consumed} allotted={c.allotted} type={c.type} /></td>
-                                                        <td className="text-center font-black text-indigo-600 text-lg">{c.leadsGenerated}</td>
-                                                        <td><div className="flex items-center gap-2"><div className="toggle-switch" data-state={c.status.toLowerCase()} onClick={()=>toggleStatus(c.id)}><span className="toggle-thumb"></span></div><span className="text-[10px] font-bold uppercase text-slate-500">{c.status}</span></div></td>
-                                                        <td className="text-right"><button onClick={()=>{setSelectedCampaign(c); setView('studio'); setPreviewTime(7);}} className="bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">AI Studio</button></td>
-                                                    </tr>))}</tbody>
-                                                </table>
-                                            </div>
-                                        </>
-                                    )}
-
-                                    {activeTab === 'leads' && (
                                         <div className="table-container">
                                             <table className="w-full text-left">
-                                                <thead><tr><th>Name</th><th>Contact</th><th>Source Campaign</th><th>Status</th></tr></thead>
-                                                <tbody>{leads.map(l=>(<tr key={l.id}><td className="font-bold">{l.name}</td><td>{l.phone}</td><td className="text-slate-500">{l.campaign}</td><td><span className="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">{l.stage}</span></td></tr>))}</tbody>
+                                                <thead><tr><th>Campaign / Store</th><th>Fulfillment</th><th className="text-center">Leads</th><th>Status</th><th className="text-right">Action</th></tr></thead>
+                                                <tbody>{campaigns.map(c=>(<tr key={c.id}>
+                                                    <td><p className="font-bold text-slate-900">{c.name}</p><p className="text-[10px] text-slate-400 font-bold uppercase">{c.client}</p></td>
+                                                    <td className="w-56"><ProgressBar consumed={c.consumed} allotted={c.allotted} /></td>
+                                                    <td className="text-center font-black text-indigo-600 text-lg">{c.leadsGenerated}</td>
+                                                    <td><span className="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider">{c.status}</span></td>
+                                                    <td className="text-right"><button onClick={()=>{setSelectedCampaign(c); setView('studio');}} className="bg-slate-50 border border-slate-200 hover:border-indigo-200 text-slate-600 hover:text-indigo-600 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">AI Studio</button></td>
+                                                </tr>))}</tbody>
                                             </table>
                                         </div>
                                     )}
-
-                                    {activeTab === 'users' && (
-                                        <div className="table-container">
-                                            <table className="w-full text-left">
-                                                <thead><tr><th>Name</th><th>Email</th><th>Assigned Store</th><th>Role</th></tr></thead>
-                                                <tbody>{users.map(u=>(<tr key={u.id}><td className="font-bold">{u.name}</td><td>{u.email}</td><td className="font-medium">{u.client}</td><td><span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">{u.role}</span></td></tr>))}</tbody>
-                                            </table>
-                                        </div>
-                                    )}
-
-                                    {activeTab === 'logs' && (
-                                        <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm">
-                                            {logs.map(log => (<div key={log.id} className="flex gap-4 items-start border-b border-slate-50 pb-4 last:border-0 last:pb-0">
-                                                <div className={`w-2 h-2 mt-2 rounded-full shrink-0 ${log.tag === 'System' ? 'bg-slate-300' : 'bg-indigo-500'}`}></div>
-                                                <div><p className="text-sm font-semibold text-slate-800">{log.message}</p><p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{log.tag} • {new Date(log.time).toLocaleTimeString()} • {log.client}</p></div>
-                                            </div>))}
+                                    {activeTab !== 'campaigns' && (
+                                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-slate-200 border-dashed">
+                                            <SvgIcon name="List" size={48} className="text-slate-200 mb-4" />
+                                            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Section Under Construction</p>
                                         </div>
                                     )}
                                 </div>
@@ -345,26 +269,45 @@
                             <div className="flex-1 flex flex-col bg-white animate-in overflow-hidden">
                                 <header className="h-[72px] border-b border-slate-200 px-6 flex justify-between items-center shrink-0">
                                     <div className="flex items-center gap-6">
-                                        <button onClick={()=>setView('dashboard')} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 border border-slate-200">
-                                            <SvgIcon name="ChevronLeft" size={20}/>
-                                        </button>
+                                        <button onClick={()=>setView('dashboard')} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 border border-slate-200"><SvgIcon name="ChevronLeft" size={20}/></button>
                                         <div className="flex bg-slate-50 border border-slate-200 rounded-full p-1 gap-1">
                                             {['GEMINI', 'CLAUDE', 'GPT'].map(m => (
-                                                <button key={m} onClick={()=>setSelectedModel(m)} className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${selectedModel === m ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}>
-                                                    <span className="flex items-center gap-1.5">{m === 'GEMINI' ? <SvgIcon name="Sparkles" size={12}/> : m === 'CLAUDE' ? <SvgIcon name="Cpu" size={12}/> : <SvgIcon name="Zap" size={12}/>} {m}</span>
+                                                <button key={m} onClick={()=>setSelectedModel(m)} className={`px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-all ${selectedModel === m ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400'}`}>
+                                                    {m}
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <button className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-700 flex items-center gap-2 hover:bg-slate-100 transition-all">
-                                            <SvgIcon name="Upload" size={14}/> Logo
-                                        </button>
+                                        <button onClick={() => setShowCodeEditor(!showCodeEditor)} className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-700 flex items-center gap-2 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-all"><SvgIcon name="Code" size={14}/> Paste Code</button>
+                                        <button className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-700 flex items-center gap-2"><SvgIcon name="Upload" size={14}/> Logo</button>
                                         <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md transition-all">Deploy</button>
                                     </div>
                                 </header>
 
-                                <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-white">
+                                <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-white relative">
+                                    
+                                    {/* Manual Code Editor Panel */}
+                                    {showCodeEditor && (
+                                        <div className="absolute inset-y-0 left-0 w-full md:w-[500px] bg-[#0f172a] z-50 shadow-2xl flex flex-col animate-in">
+                                            <div className="p-4 border-b border-slate-800 flex justify-between items-center shrink-0">
+                                                <h4 className="text-white font-black text-[10px] uppercase tracking-[0.2em]">External Code Importer</h4>
+                                                <button onClick={() => setShowCodeEditor(false)} className="text-slate-500 hover:text-white"><SvgIcon name="X" /></button>
+                                            </div>
+                                            <div className="flex-1 p-6">
+                                                <textarea 
+                                                    value={manualCode} onChange={(e) => setManualCode(e.target.value)}
+                                                    className="w-full h-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-emerald-400 font-mono text-xs outline-none focus:border-indigo-500 resize-none shadow-inner"
+                                                    placeholder='Paste JSON here...'
+                                                />
+                                            </div>
+                                            <div className="p-4 bg-slate-900 border-t border-slate-800 flex gap-3">
+                                                <button onClick={applyManualCode} className="flex-1 py-3 text-[10px] font-black uppercase bg-indigo-600 text-white rounded-xl shadow-lg">Apply Configuration</button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Chat Pane */}
                                     <div className="flex-1 flex flex-col border-r border-slate-100">
                                         <div className="flex-1 p-8 space-y-6 overflow-y-auto no-scrollbar bg-slate-50/30">
                                             <div className="chat-bubble-ai">Hi! I'm the AI Architect ({selectedModel}). Ready to design for <b>{selectedCampaign?.region}</b>.</div>
@@ -375,19 +318,18 @@
                                             <div ref={chatEndRef} />
                                         </div>
                                         <div className="p-6 border-t border-slate-200 bg-white">
-                                            <div className="relative flex items-center max-w-3xl mx-auto">
+                                            <div className="relative flex items-center max-w-3xl mx-auto shadow-sm">
                                                 <input 
                                                     onKeyDown={e=>{if(e.key==='Enter'){callAI(e.target.value); e.target.value=''}}} 
-                                                    className="w-full pl-6 pr-14 py-4 bg-slate-50 border border-slate-200 focus:border-indigo-100 focus:bg-white outline-none rounded-full text-sm transition-all shadow-inner" 
-                                                    placeholder="Ask AI to design, write copy, or generate images..." 
+                                                    className="w-full pl-6 pr-14 py-4 bg-slate-50 border border-slate-200 focus:border-indigo-100 focus:bg-white outline-none rounded-full text-sm transition-all" 
+                                                    placeholder="Ask AI to design or update the ad..." 
                                                 />
-                                                <button className="absolute right-2 p-2.5 bg-indigo-600 text-white rounded-full hover:scale-105 transition-transform shadow-md">
-                                                    <SvgIcon name="Send" size={18}/>
-                                                </button>
+                                                <button className="absolute right-2 p-2.5 bg-indigo-600 text-white rounded-full"><SvgIcon name="Send" size={18}/></button>
                                             </div>
                                         </div>
                                     </div>
 
+                                    {/* Preview Pane (EXACT MATCH TO SCREENSHOT) */}
                                     <div className="w-full md:w-[460px] bg-white flex flex-col items-center shrink-0 p-8 overflow-y-auto no-scrollbar border-l border-slate-100">
                                         <div className="w-full flex justify-between items-center mb-6 px-4">
                                             <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Live Preview</span>
@@ -396,22 +338,19 @@
 
                                         <div className="iphone-frame shadow-[0_40px_80px_-15px_rgba(0,0,0,0.15)]">
                                             <div className="iphone-notch"></div>
-                                            <div className="timer-bar-preview">
-                                                <div className="timer-progress-fill transition-all duration-1000 ease-linear" style={{width: `${((25-previewTime)/25)*100}%`, backgroundColor: config.color}}></div>
-                                            </div>
                                             <div className="ad-preview-scroll p-6 pt-12 text-center bg-white h-full flex flex-col">
                                                 <div className="mb-4">
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Brand Logo</p>
-                                                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${previewTime === 0 ? 'text-emerald-500':'text-emerald-500'}`}>
-                                                        {previewTime === 0 ? <span className="flex items-center justify-center gap-1"><SvgIcon name="Check" size={12}/> UNLOCKED</span> : <span className="flex items-center justify-center gap-1 animate-pulse"><SvgIcon name="Check" size={12}/> UNLOCKED</span>}
+                                                    <p className="text-[10px] font-black text-emerald-500 flex items-center justify-center gap-1">
+                                                        <SvgIcon name="Check" size={12}/> UNLOCKED
                                                     </p>
                                                 </div>
 
-                                                <div className="aspect-[4/5] rounded-2xl overflow-hidden mb-6 shadow-sm border border-slate-100 bg-slate-50 relative group">
+                                                <div className="aspect-[4/5] rounded-2xl overflow-hidden mb-6 shadow-sm border border-slate-100 bg-slate-50">
                                                     <img src={config.img} className="w-full h-full object-cover" alt="Preview"/>
                                                 </div>
 
-                                                <h4 className="font-black text-2xl leading-tight mb-2 text-slate-900 capitalize tracking-tight">{config.headline}</h4>
+                                                <h4 className="font-black text-2xl leading-tight mb-2 text-slate-900 tracking-tight">{config.headline}</h4>
                                                 <p className="text-sm text-slate-500 leading-relaxed mb-6 font-medium">{config.subtext}</p>
                                                 
                                                 <div className="mt-auto space-y-4">
@@ -430,34 +369,6 @@
                             </div>
                         )}
                     </main>
-
-                    {/* Modals */}
-                    {showCreateModal && (
-                        <div className="overlay animate-in"><div className="slide-panel flex flex-col">
-                            <div className="flex justify-between items-center mb-8"><h2 className="text-2xl font-black text-slate-900">New Campaign</h2><button onClick={()=>setShowCreateModal(false)} className="p-2 text-slate-400 hover:text-slate-900"><SvgIcon name="X" size={20}/></button></div>
-                            <div className="input-group">
-                                <label className="input-label">Assign Store / Manager</label>
-                                <select value={newAd.client} onChange={e=>setNewAd({...newAd, client: e.target.value})} className="input-field appearance-none cursor-pointer">
-                                    <option value="">-- Choose User --</option>
-                                    {users.map(u=>(<option key={u.id} value={u.client}>{u.client} ({u.name})</option>))}
-                                </select>
-                            </div>
-                            <div className="input-group"><label className="input-label">Campaign Title</label><input placeholder="e.g. Laser Hair Removal Special" value={newAd.name} onChange={e=>setNewAd({...newAd, name:e.target.value})} className="input-field" /></div>
-                            <div className="input-group"><label className="input-label">Allotment Count</label><input type="number" value={newAd.allotted} onChange={e=>setNewAd({...newAd, allotted:e.target.value})} className="input-field font-mono font-bold" /></div>
-                            <button onClick={()=>{setCampaigns([...campaigns, {...newAd, id:Date.now(), status:'Active', consumed:0, leadsGenerated:0}]); setShowCreateModal(false);}} className="w-full mt-auto bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition-all">Create Allotment</button>
-                        </div></div>
-                    )}
-
-                    {showUserModal && (
-                        <div className="overlay-center animate-in"><div className="bg-white p-10 rounded-[2.5rem] w-full max-w-sm shadow-2xl relative">
-                            <button onClick={()=>setShowUserModal(false)} className="absolute top-6 right-6 text-slate-300 hover:text-slate-900"><SvgIcon name="X" size={20}/></button>
-                            <h2 className="text-xl font-black text-center mb-8">Provision Client User</h2>
-                            <input placeholder="Manager Name" onChange={e=>setNewUser({...newUser, name:e.target.value})} className="input-field mb-4" />
-                            <input placeholder="Email Address" onChange={e=>setNewUser({...newUser, email:e.target.value})} className="input-field mb-4" />
-                            <input placeholder="Store Name" onChange={e=>setNewUser({...newUser, client:e.target.value})} className="input-field mb-8" />
-                            <button onClick={()=>{setUsers([...users, {...newUser, id:Date.now()}]); setLogs([{id:Date.now(), tag:'System', message:`User ${newUser.name} provisioned`, client:newUser.client, time:new Date()}, ...logs]); setShowUserModal(false);}} className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-md hover:bg-indigo-700 transition-all">Add to Directory</button>
-                        </div></div>
-                    )}
                 </div>
             );
         }
