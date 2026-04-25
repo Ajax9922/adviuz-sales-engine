@@ -70,13 +70,23 @@
 
         // --- MOCK INITIAL DATA ---
         const INITIAL_CAMPAIGNS = [
-            { id: 'c1', name: 'Summer Laser Promo', client: 'Pure Skin Clinic', status: 'Active', type: 'Views', allotted: 10000, consumed: 8500, leadsGenerated: 42, region: 'Western Canada' },
-            { id: 'c2', name: 'Implant Consultation', client: 'City Dental', status: 'Active', type: 'Leads', allotted: 50, consumed: 12, leadsGenerated: 12, region: 'Eastern Canada' }
+            { id: 'c1', campaign_id: 'WEST_01', name: 'Summer Laser Promo', client: 'Western Canada Clinic', status: 'Active', type: 'Views', allotted: 10000, consumed: 8500, leadsGenerated: 42, region: 'Western Canada' },
+            { id: 'c2', campaign_id: 'EAST_01', name: 'Implant Consultation', client: 'Eastern Canada Dental', status: 'Active', type: 'Leads', allotted: 50, consumed: 12, leadsGenerated: 12, region: 'Eastern Canada' }
         ];
 
         const INITIAL_USERS = [
-            { id: 'u1', name: 'Dr. West', email: 'west@pureskin.com', client: 'Pure Skin Clinic', role: 'Store Manager' },
-            { id: 'u2', name: 'James T', email: 'james@citydental.com', client: 'City Dental', role: 'HQ Admin' }
+            { id: 'u1', name: 'Dr. Amanda West', email: 'admin@pureskin.com', client: 'Western Canada Clinic', role: 'Store Manager', status: 'Active' },
+            { id: 'u2', name: 'James Taylor', email: 'marketing@citydental.com', client: 'Eastern Canada Dental', role: 'Regional Manager', status: 'Active' }
+        ];
+
+        const INITIAL_LEADS = [
+            { id: 'l1', name: 'Michael Chen', phone: '416-555-0198', client: 'Western Canada Clinic', campaign: 'Summer Laser Promo', date: new Date().toISOString(), stage: 'New' },
+            { id: 'l2', name: 'Sarah Jenkins', phone: '604-555-8821', client: 'Eastern Canada Dental', campaign: 'Implant Consultation', date: new Date().toISOString(), stage: 'Contacted' }
+        ];
+
+        const INITIAL_LOGS = [
+            { id: 'log1', tag: 'System', message: 'Master Admin logged in from IP 192.168.1.1', client: 'System', time: new Date() },
+            { id: 'log2', tag: 'Campaign', message: 'Campaign "Summer Laser Promo" started for Western Canada', client: 'Western Canada Clinic', time: new Date(Date.now() - 3600000) }
         ];
 
         function SvgIcon({ name, size = 18, className = "" }) {
@@ -93,6 +103,8 @@
                 Cpu: <path d="M4 4h16v16H4V4zm5 0V2m6 2V2M4 9H2m2 6H2m18-6h2m-2 6h2M9 22v-2m6 2v-2" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
                 Zap: <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
                 Sparkles: <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M14 12a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+                Phone: <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+                Check: <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
                 Adviuz: (
                     <g>
                         <rect width="24" height="24" rx="6" fill="url(#grad1)" />
@@ -128,7 +140,8 @@
             
             const [campaigns, setCampaigns] = useState(INITIAL_CAMPAIGNS);
             const [users, setUsers] = useState(INITIAL_USERS);
-            const [logs, setLogs] = useState([]);
+            const [leads, setLeads] = useState(INITIAL_LEADS);
+            const [logs, setLogs] = useState(INITIAL_LOGS);
 
             const [showCreateModal, setShowCreateModal] = useState(false);
             const [showUserModal, setShowUserModal] = useState(false);
@@ -140,8 +153,8 @@
 
             // AI Studio & Preview State
             const [config, setConfig] = useState({ 
-                headline: 'testing the water', subtext: 'Sign up below to claim your discount.', 
-                color: '#4f46e5', timer: 25, cta: 'Claim Offer',
+                headline: 'Testing The Water', subtext: 'Sign up below to claim your discount.', 
+                color: '#4f46e5', timer: 25, cta: 'CLAIM OFFER',
                 img: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=600'
             });
             const [previewTime, setPreviewTime] = useState(7); 
@@ -177,22 +190,23 @@
                 }
             };
 
-            // --- AI Logic (Switching to stable model to avoid 403) ---
+            // --- AI Logic (Updated to imagen-4.0-generate-001) ---
             const generateImage = async (prompt) => {
                 try {
-                    const data = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`, {
+                    const data = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ instances: [{ prompt }], parameters: { sampleCount: 1 } })
+                        body: JSON.stringify({ instances: { prompt: prompt }, parameters: { sampleCount: 1 } })
                     });
-                    if (data.predictions?.[0]) {
+                    if (data.predictions?.[0]?.bytesBase64Encoded) {
                         const base64 = data.predictions[0].bytesBase64Encoded;
                         setConfig(prev => ({ ...prev, img: `data:image/png;base64,${base64}` }));
-                        setChatHistory(p => [...p, { role: 'model', content: "Generated a new visual layout." }]);
+                        setChatHistory(p => [...p, { role: 'model', content: "Generated a new visual asset based on your prompt." }]);
+                    } else {
+                        throw new Error("Empty prediction");
                     }
                 } catch (e) {
-                    const errorMsg = e.status === 403 ? "Image generation access denied. Check API permissions." : "Image engine currently busy.";
-                    setChatHistory(p => [...p, { role: 'model', content: errorMsg }]);
+                    setChatHistory(p => [...p, { role: 'model', content: "Visual generation restricted. Please check your project billing or API permissions." }]);
                 }
             };
 
@@ -208,31 +222,28 @@
                     return;
                 }
 
-                const sys = `You are the Adviuz AI Architect. Help design a landing page. Return a helpful message AND a JSON block.
-                Valid JSON Keys: color (hex), headline (short), subtext (sentence), cta (action), timer (number).
-                Use stable model formatting.`;
+                const sys = `You are the Adviuz AI Architect. Design a landing page for ${selectedCampaign?.region || 'the client'}.
+                Return a friendly message and a JSON block wrapped in \`\`\`json ... \`\`\`.
+                Valid keys: color (hex), headline (short title case), subtext (sentence), cta (ALL CAPS), timer (number).`;
                 
                 try {
-                    // Switching to gemini-1.5-flash as it's the stable production model
                     const data = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ contents: [{ parts: [{ text: msg }] }], systemInstruction: { parts: [{ text: sys }] } })
                     });
 
-                    const aiRaw = data.candidates?.[0]?.content?.parts?.[0]?.text || "Listening...";
+                    const aiRaw = data.candidates?.[0]?.content?.parts?.[0]?.text || "I am currently adjusting the layout for you.";
                     const jsonMatch = aiRaw.match(/```json\n([\s\S]*?)\n```/);
                     if (jsonMatch) {
                         const updates = JSON.parse(jsonMatch[1]);
                         setConfig(prev => ({ ...prev, ...updates }));
                         if(updates.timer) setPreviewTime(updates.timer);
                     }
-                    const cleanMsg = aiRaw.replace(/```json[\s\S]*?```/, "").trim() || "Config updated.";
+                    const cleanMsg = aiRaw.replace(/```json[\s\S]*?```/, "").trim() || "Applied the design changes.";
                     setChatHistory(p => [...p, { role: 'model', content: cleanMsg }]);
                 } catch (e) {
-                    let friendlyMsg = "Communication error.";
-                    if(e.status === 403) friendlyMsg = "Invalid API Key or restricted model access (403). Please verify permissions in Google AI Studio.";
-                    setChatHistory(p => [...p, { role: 'model', content: friendlyMsg }]);
+                    setChatHistory(p => [...p, { role: 'model', content: "The AI session timed out. Please try again." }]);
                 } finally { setIsAiThinking(false); }
             };
 
@@ -248,7 +259,7 @@
                         <SvgIcon name="Adviuz" size={48} className="mx-auto mb-6"/>
                         <h1 className="text-2xl font-bold text-slate-900 mb-2">Master Admin</h1>
                         <p className="text-sm text-slate-500 mb-8">Authorized Personnel Only</p>
-                        <input type="password" placeholder="Enter PIN (admin)" value={pin} onChange={e=>setPin(e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center text-xl tracking-[0.5em] font-bold outline-none focus:border-indigo-500 mb-6" />
+                        <input type="password" placeholder="Enter PIN (admin)" value={pin} onChange={e=>setPin(e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center text-xl tracking-[0.5em] font-bold outline-none focus:border-blue-500 mb-6" />
                         <button type="submit" className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-indigo-700 transition-all">Secure Login</button>
                     </form>
                 </div>
@@ -276,7 +287,7 @@
                         {view === 'dashboard' ? (
                             <div className="flex-1 flex flex-col overflow-hidden animate-in">
                                 <header className="bg-white border-b px-8 py-6 flex justify-between items-center shrink-0 shadow-sm">
-                                    <h2 className="text-2xl font-bold capitalize text-slate-900">{activeTab}</h2>
+                                    <h2 className="text-2xl font-bold capitalize text-slate-900">{activeTab.replace('-', ' ')}</h2>
                                     <button onClick={()=>activeTab==='users'?setShowUserModal(true):setShowCreateModal(true)} className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-md hover:bg-indigo-700 transition-all"><SvgIcon name="Plus" size={16}/> Create {activeTab==='users'?'User':'Ad'}</button>
                                 </header>
 
@@ -288,7 +299,7 @@
                                             </div>
                                             <div className="hidden md:block table-container">
                                                 <table className="w-full text-left">
-                                                    <thead><tr><th>Client / Ad Title</th><th>Fulfillment Progress</th><th className="text-center">Leads Gen</th><th>Status</th><th className="text-right">Action</th></tr></thead>
+                                                    <thead><tr><th>Client / Ad Title</th><th>Progress</th><th className="text-center">Leads Gen</th><th>Status</th><th className="text-right">Action</th></tr></thead>
                                                     <tbody>{filteredCampaigns.map(c=>(<tr key={c.id}>
                                                         <td><p className="font-bold text-slate-900">{c.client}</p><p className="text-xs text-slate-500 font-medium">{c.name}</p></td>
                                                         <td className="w-56"><ProgressBar consumed={c.consumed} allotted={c.allotted} type={c.type} /></td>
@@ -299,6 +310,33 @@
                                                 </table>
                                             </div>
                                         </>
+                                    )}
+
+                                    {activeTab === 'leads' && (
+                                        <div className="table-container">
+                                            <table className="w-full text-left">
+                                                <thead><tr><th>Name</th><th>Contact</th><th>Source Campaign</th><th>Status</th></tr></thead>
+                                                <tbody>{leads.map(l=>(<tr key={l.id}><td className="font-bold">{l.name}</td><td>{l.phone}</td><td className="text-slate-500">{l.campaign}</td><td><span className="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">{l.stage}</span></td></tr>))}</tbody>
+                                            </table>
+                                        </div>
+                                    )}
+
+                                    {activeTab === 'users' && (
+                                        <div className="table-container">
+                                            <table className="w-full text-left">
+                                                <thead><tr><th>Name</th><th>Email</th><th>Assigned Store</th><th>Role</th></tr></thead>
+                                                <tbody>{users.map(u=>(<tr key={u.id}><td className="font-bold">{u.name}</td><td>{u.email}</td><td className="font-medium">{u.client}</td><td><span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">{u.role}</span></td></tr>))}</tbody>
+                                            </table>
+                                        </div>
+                                    )}
+
+                                    {activeTab === 'logs' && (
+                                        <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm">
+                                            {logs.map(log => (<div key={log.id} className="flex gap-4 items-start border-b border-slate-50 pb-4 last:border-0 last:pb-0">
+                                                <div className={`w-2 h-2 mt-2 rounded-full shrink-0 ${log.tag === 'System' ? 'bg-slate-300' : 'bg-indigo-500'}`}></div>
+                                                <div><p className="text-sm font-semibold text-slate-800">{log.message}</p><p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{log.tag} • {new Date(log.time).toLocaleTimeString()} • {log.client}</p></div>
+                                            </div>))}
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -364,8 +402,8 @@
                                             <div className="ad-preview-scroll p-6 pt-12 text-center bg-white h-full flex flex-col">
                                                 <div className="mb-4">
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Brand Logo</p>
-                                                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${previewTime === 0 ? 'text-emerald-500':'text-slate-300 animate-pulse'}`}>
-                                                        {previewTime === 0 ? '✅ UNLOCKED' : `WAIT ${previewTime}S TO UNLOCK`}
+                                                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${previewTime === 0 ? 'text-emerald-500':'text-emerald-500'}`}>
+                                                        {previewTime === 0 ? <span className="flex items-center justify-center gap-1"><SvgIcon name="Check" size={12}/> UNLOCKED</span> : <span className="flex items-center justify-center gap-1 animate-pulse"><SvgIcon name="Check" size={12}/> UNLOCKED</span>}
                                                     </p>
                                                 </div>
 
@@ -381,8 +419,8 @@
                                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Call for Details</p>
                                                         <p className="font-black text-indigo-600 text-lg" style={{color: config.color}}>1-800-555-0199</p>
                                                     </div>
-                                                    <button disabled={previewTime > 0} className="w-full py-4 rounded-2xl font-black text-xs border-2 uppercase tracking-[0.1em] transition-all duration-500 shadow-md" style={{color: previewTime > 0 ? config.color : 'white', borderColor: config.color, backgroundColor: previewTime > 0 ? 'transparent' : config.color, borderStyle: previewTime > 0 ? 'dashed' : 'solid', opacity: previewTime > 0 ? 0.4 : 1}}>
-                                                        {previewTime === 0 ? config.cta : `${config.cta} (Locked)`}
+                                                    <button className="w-full py-4 rounded-2xl font-black text-xs border-none uppercase tracking-[0.1em] transition-all duration-500 shadow-md text-white" style={{backgroundColor: config.color}}>
+                                                        {config.cta}
                                                     </button>
                                                 </div>
                                             </div>
@@ -393,7 +431,7 @@
                         )}
                     </main>
 
-                    {/* CREATE AD MODAL */}
+                    {/* Modals */}
                     {showCreateModal && (
                         <div className="overlay animate-in"><div className="slide-panel flex flex-col">
                             <div className="flex justify-between items-center mb-8"><h2 className="text-2xl font-black text-slate-900">New Campaign</h2><button onClick={()=>setShowCreateModal(false)} className="p-2 text-slate-400 hover:text-slate-900"><SvgIcon name="X" size={20}/></button></div>
@@ -407,6 +445,17 @@
                             <div className="input-group"><label className="input-label">Campaign Title</label><input placeholder="e.g. Laser Hair Removal Special" value={newAd.name} onChange={e=>setNewAd({...newAd, name:e.target.value})} className="input-field" /></div>
                             <div className="input-group"><label className="input-label">Allotment Count</label><input type="number" value={newAd.allotted} onChange={e=>setNewAd({...newAd, allotted:e.target.value})} className="input-field font-mono font-bold" /></div>
                             <button onClick={()=>{setCampaigns([...campaigns, {...newAd, id:Date.now(), status:'Active', consumed:0, leadsGenerated:0}]); setShowCreateModal(false);}} className="w-full mt-auto bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition-all">Create Allotment</button>
+                        </div></div>
+                    )}
+
+                    {showUserModal && (
+                        <div className="overlay-center animate-in"><div className="bg-white p-10 rounded-[2.5rem] w-full max-w-sm shadow-2xl relative">
+                            <button onClick={()=>setShowUserModal(false)} className="absolute top-6 right-6 text-slate-300 hover:text-slate-900"><SvgIcon name="X" size={20}/></button>
+                            <h2 className="text-xl font-black text-center mb-8">Provision Client User</h2>
+                            <input placeholder="Manager Name" onChange={e=>setNewUser({...newUser, name:e.target.value})} className="input-field mb-4" />
+                            <input placeholder="Email Address" onChange={e=>setNewUser({...newUser, email:e.target.value})} className="input-field mb-4" />
+                            <input placeholder="Store Name" onChange={e=>setNewUser({...newUser, client:e.target.value})} className="input-field mb-8" />
+                            <button onClick={()=>{setUsers([...users, {...newUser, id:Date.now()}]); setLogs([{id:Date.now(), tag:'System', message:`User ${newUser.name} provisioned`, client:newUser.client, time:new Date()}, ...logs]); setShowUserModal(false);}} className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-md hover:bg-indigo-700 transition-all">Add to Directory</button>
                         </div></div>
                     )}
                 </div>
