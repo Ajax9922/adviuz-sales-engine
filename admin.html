@@ -28,19 +28,19 @@
         .input-group { margin-bottom: 16px; }
         .input-label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 6px; }
         .input-field { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; transition: all 0.2s; background: #f8fafc; }
-        .input-field:focus { border-color: #2563eb; background: white; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .input-field:focus { border-color: #4f46e5; background: white; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         
         /* iPhone Simulation */
         .iphone-frame { width: 280px; height: 580px; border: 10px solid #0f172a; border-radius: 36px; position: relative; background: white; overflow: hidden; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2); flex-shrink: 0; }
         .iphone-notch { width: 100px; height: 18px; background: #0f172a; position: absolute; top: 0; left: 50%; transform: translateX(-50%); border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; z-index: 40; }
         .timer-bar-preview { height: 4px; background: #e2e8f0; width: 100%; position: absolute; top: 0; left: 0; z-index: 30; }
-        .timer-progress-fill { height: 100%; width: 0%; transition: width 1s linear; background-color: #2563eb; }
+        .timer-progress-fill { height: 100%; width: 0%; transition: width 1s linear; background-color: #4f46e5; }
         .ad-preview-scroll { height: 100%; overflow-y: auto; padding-top: 30px; }
         
         /* AI Studio Chat */
-        .chat-bubble-user { background-color: #2563eb; color: white; border-radius: 16px 16px 4px 16px; padding: 12px 16px; align-self: flex-end; max-width: 85%; font-size: 13px; }
-        .chat-bubble-ai { background-color: white; color: #1e293b; border-radius: 16px 16px 16px 4px; padding: 12px 16px; align-self: flex-start; max-width: 85%; font-size: 13px; border: 1px solid #e2e8f0; }
-        .ai-loading-dots { display: flex; gap: 4px; padding: 8px; }
+        .chat-bubble-user { background-color: #4f46e5; color: white; border-radius: 16px 16px 4px 16px; padding: 12px 16px; align-self: flex-end; max-width: 85%; font-size: 13px; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1); }
+        .chat-bubble-ai { background-color: white; color: #1e293b; border-radius: 16px 16px 16px 4px; padding: 12px 16px; align-self: flex-start; max-width: 85%; font-size: 13px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .ai-loading-dots { display: flex; gap: 4px; padding: 12px 16px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; align-self: flex-start; }
         .dot { width: 6px; height: 6px; background: #94a3b8; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
 
@@ -65,21 +65,18 @@
     <script type="text/babel">
         const { useState, useMemo, useEffect, useRef } = React;
 
+        // --- SECURITY WARNING: ENSURE THIS KEY IS VALID & ACTIVE IN GOOGLE AI STUDIO ---
         const apiKey = "AIzaSyDlyodQmaASdAiCEJTaQYryhbuGhvzl524"; 
 
         // --- MOCK INITIAL DATA ---
         const INITIAL_CAMPAIGNS = [
-            { id: 'c1', name: 'Summer Laser Promo', client: 'Pure Skin Clinic', status: 'Active', type: 'Views', allotted: 10000, consumed: 8500, leadsGenerated: 42 },
-            { id: 'c2', name: 'Implant Consultation', client: 'City Dental', status: 'Active', type: 'Leads', allotted: 50, consumed: 12, leadsGenerated: 12 }
+            { id: 'c1', name: 'Summer Laser Promo', client: 'Pure Skin Clinic', status: 'Active', type: 'Views', allotted: 10000, consumed: 8500, leadsGenerated: 42, region: 'Western Canada' },
+            { id: 'c2', name: 'Implant Consultation', client: 'City Dental', status: 'Active', type: 'Leads', allotted: 50, consumed: 12, leadsGenerated: 12, region: 'Eastern Canada' }
         ];
 
         const INITIAL_USERS = [
             { id: 'u1', name: 'Dr. West', email: 'west@pureskin.com', client: 'Pure Skin Clinic', role: 'Store Manager' },
             { id: 'u2', name: 'James T', email: 'james@citydental.com', client: 'City Dental', role: 'HQ Admin' }
-        ];
-
-        const INITIAL_LOGS = [
-            { id: 'l1', tag: 'System', message: 'Admin login detected', client: 'System', time: new Date() }
         ];
 
         function SvgIcon({ name, size = 18, className = "" }) {
@@ -92,15 +89,19 @@
                 Send: <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
                 X: <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
                 ChevronLeft: <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+                Upload: <path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+                Cpu: <path d="M4 4h16v16H4V4zm5 0V2m6 2V2M4 9H2m2 6H2m18-6h2m-2 6h2M9 22v-2m6 2v-2" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+                Zap: <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
+                Sparkles: <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M14 12a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />,
                 Adviuz: (
                     <g>
                         <rect width="24" height="24" rx="6" fill="url(#grad1)" />
                         <path d="M12 4L5 19H8.5L12 11L15.5 19H19L12 4Z" fill="white" />
-                        <defs><linearGradient id="grad1"><stop stopColor="#2563EB"/><stop offset="1" stopColor="#0F172A"/></linearGradient></defs>
+                        <defs><linearGradient id="grad1"><stop stopColor="#4f46e5"/><stop offset="1" stopColor="#0F172A"/></linearGradient></defs>
                     </g>
                 )
             };
-            return <svg width={size} height={size} viewBox="0 0 24 24" className={className}>{icons[name] || null}</svg>;
+            return <svg width={size} height={size} viewBox="0 0 24 24" className={className} xmlns="http://www.w3.org/2000/svg">{icons[name] || null}</svg>;
         }
 
         const ProgressBar = ({ consumed, allotted, type }) => {
@@ -112,7 +113,7 @@
                         <span>{allotted.toLocaleString()} {type}</span>
                     </div>
                     <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-blue-500" style={{width: `${pct}%`}}></div>
+                        <div className={`h-full bg-indigo-600`} style={{width: `${pct}%`}}></div>
                     </div>
                 </div>
             );
@@ -122,11 +123,12 @@
             const [isLoggedIn, setIsLoggedIn] = useState(false);
             const [pin, setPin] = useState('');
             const [activeTab, setActiveTab] = useState('campaigns');
-            const [view, setView] = useState('dashboard'); // 'dashboard', 'studio'
+            const [view, setView] = useState('dashboard'); 
+            const [selectedModel, setSelectedModel] = useState('GEMINI');
             
             const [campaigns, setCampaigns] = useState(INITIAL_CAMPAIGNS);
             const [users, setUsers] = useState(INITIAL_USERS);
-            const [logs, setLogs] = useState(INITIAL_LOGS);
+            const [logs, setLogs] = useState([]);
 
             const [showCreateModal, setShowCreateModal] = useState(false);
             const [showUserModal, setShowUserModal] = useState(false);
@@ -138,12 +140,13 @@
 
             // AI Studio & Preview State
             const [config, setConfig] = useState({ 
-                headline: 'Exclusive Offer', subtext: 'Claim your limited-time discount now.', 
-                color: '#2563eb', timer: 25, cta: 'Claim Offer',
-                img: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600'
+                headline: 'testing the water', subtext: 'Sign up below to claim your discount.', 
+                color: '#4f46e5', timer: 25, cta: 'Claim Offer',
+                img: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=600'
             });
-            const [previewTime, setPreviewTime] = useState(25);
+            const [previewTime, setPreviewTime] = useState(7); 
             const [chatHistory, setChatHistory] = useState([]);
+            const [userInput, setUserInput] = useState("");
             const [isAiThinking, setIsAiThinking] = useState(false);
             const chatEndRef = useRef(null);
 
@@ -159,26 +162,77 @@
             // Scroll Chat
             useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [chatHistory]);
 
-            // AI Studio Interaction
+            // --- HELPER: API Fetch with exponential backoff ---
+            const fetchWithRetry = async (url, options, retries = 5, backoff = 1000) => {
+                try {
+                    const res = await fetch(url, options);
+                    if (!res.ok) throw res;
+                    return await res.json();
+                } catch (err) {
+                    if (retries > 0 && (err.status === 429 || err.status >= 500)) {
+                        await new Promise(r => setTimeout(r, backoff));
+                        return fetchWithRetry(url, options, retries - 1, backoff * 2);
+                    }
+                    throw err;
+                }
+            };
+
+            // --- AI Logic (Switching to stable model to avoid 403) ---
+            const generateImage = async (prompt) => {
+                try {
+                    const data = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ instances: [{ prompt }], parameters: { sampleCount: 1 } })
+                    });
+                    if (data.predictions?.[0]) {
+                        const base64 = data.predictions[0].bytesBase64Encoded;
+                        setConfig(prev => ({ ...prev, img: `data:image/png;base64,${base64}` }));
+                        setChatHistory(p => [...p, { role: 'model', content: "Generated a new visual layout." }]);
+                    }
+                } catch (e) {
+                    const errorMsg = e.status === 403 ? "Image generation access denied. Check API permissions." : "Image engine currently busy.";
+                    setChatHistory(p => [...p, { role: 'model', content: errorMsg }]);
+                }
+            };
+
             const callAI = async (msg) => {
                 if(!msg) return;
                 setIsAiThinking(true);
                 setChatHistory(p => [...p, { role: 'user', content: msg }]);
-                const sys = `You are the Adviuz AI Architect. Help design a landing page. Return a message and a JSON block. Keys: color, headline, subtext, cta.`;
+
+                const isImageRequest = /\b(image|design|photo|picture|graphic|logo|visual)\b/i.test(msg);
+                if (isImageRequest) {
+                    await generateImage(msg);
+                    setIsAiThinking(false);
+                    return;
+                }
+
+                const sys = `You are the Adviuz AI Architect. Help design a landing page. Return a helpful message AND a JSON block.
+                Valid JSON Keys: color (hex), headline (short), subtext (sentence), cta (action), timer (number).
+                Use stable model formatting.`;
+                
                 try {
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    // Switching to gemini-1.5-flash as it's the stable production model
+                    const data = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ contents: [{ parts: [{ text: msg }] }], systemInstruction: { parts: [{ text: sys }] } })
                     });
-                    const data = await res.json();
-                    const aiRaw = data.candidates[0].content.parts[0].text;
+
+                    const aiRaw = data.candidates?.[0]?.content?.parts?.[0]?.text || "Listening...";
                     const jsonMatch = aiRaw.match(/```json\n([\s\S]*?)\n```/);
-                    if (jsonMatch) setConfig(prev => ({ ...prev, ...JSON.parse(jsonMatch[1]) }));
-                    const cleanMsg = aiRaw.replace(/```json[\s\S]*?```/, "").trim();
+                    if (jsonMatch) {
+                        const updates = JSON.parse(jsonMatch[1]);
+                        setConfig(prev => ({ ...prev, ...updates }));
+                        if(updates.timer) setPreviewTime(updates.timer);
+                    }
+                    const cleanMsg = aiRaw.replace(/```json[\s\S]*?```/, "").trim() || "Config updated.";
                     setChatHistory(p => [...p, { role: 'model', content: cleanMsg }]);
                 } catch (e) {
-                    setChatHistory(p => [...p, { role: 'model', content: "Connection to AI failed." }]);
+                    let friendlyMsg = "Communication error.";
+                    if(e.status === 403) friendlyMsg = "Invalid API Key or restricted model access (403). Please verify permissions in Google AI Studio.";
+                    setChatHistory(p => [...p, { role: 'model', content: friendlyMsg }]);
                 } finally { setIsAiThinking(false); }
             };
 
@@ -194,8 +248,8 @@
                         <SvgIcon name="Adviuz" size={48} className="mx-auto mb-6"/>
                         <h1 className="text-2xl font-bold text-slate-900 mb-2">Master Admin</h1>
                         <p className="text-sm text-slate-500 mb-8">Authorized Personnel Only</p>
-                        <input type="password" placeholder="Enter PIN" value={pin} onChange={e=>setPin(e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center text-xl tracking-[0.5em] font-bold outline-none focus:border-blue-500 mb-6" />
-                        <button type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition-all">Secure Login</button>
+                        <input type="password" placeholder="Enter PIN (admin)" value={pin} onChange={e=>setPin(e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center text-xl tracking-[0.5em] font-bold outline-none focus:border-indigo-500 mb-6" />
+                        <button type="submit" className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-indigo-700 transition-all">Secure Login</button>
                     </form>
                 </div>
             );
@@ -203,15 +257,18 @@
             return (
                 <div className="flex h-screen overflow-hidden">
                     {/* Sidebar */}
-                    <aside className="w-64 bg-[#0f172a] text-slate-300 p-6 hidden md:flex flex-col shrink-0 shadow-xl">
+                    <aside className="w-64 bg-[#0f172a] text-slate-400 p-6 hidden md:flex flex-col shrink-0 shadow-xl">
                         <div className="flex items-center gap-3 mb-10 text-white"><SvgIcon name="Adviuz" size={32}/><h1 className="text-xl font-bold tracking-tight">Adviuz</h1></div>
                         <nav className="space-y-1 flex-1">
-                            <button onClick={()=>{setActiveTab('campaigns'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='campaigns' && view==='dashboard'?'bg-blue-600 text-white shadow-md':'hover:bg-slate-800/50'}`}><SvgIcon name="Grid" size={18}/> Campaigns</button>
-                            <button onClick={()=>{setActiveTab('leads'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='leads'?'bg-blue-600 text-white shadow-md':'hover:bg-slate-800/50'}`}><SvgIcon name="List" size={18}/> Global Leads</button>
-                            <button onClick={()=>{setActiveTab('users'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='users'?'bg-blue-600 text-white shadow-md':'hover:bg-slate-800/50'}`}><SvgIcon name="Users" size={18}/> Directory</button>
-                            <button onClick={()=>{setActiveTab('logs'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='logs'?'bg-blue-600 text-white shadow-md':'hover:bg-slate-800/50'}`}><SvgIcon name="Activity" size={18}/> System Logs</button>
+                            <button onClick={()=>{setActiveTab('campaigns'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='campaigns' && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}><SvgIcon name="Grid" size={18}/> Campaigns</button>
+                            <button onClick={()=>{setActiveTab('leads'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='leads' && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}><SvgIcon name="List" size={18}/> Global Leads</button>
+                            <button onClick={()=>{setActiveTab('users'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='users' && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}><SvgIcon name="Users" size={18}/> Directory</button>
+                            <button onClick={()=>{setActiveTab('logs'); setView('dashboard')}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab==='logs' && view==='dashboard'?'bg-[#1e293b] text-white':'hover:text-white'}`}><SvgIcon name="Activity" size={18}/> System Logs</button>
                         </nav>
-                        <button onClick={()=>setIsLoggedIn(false)} className="py-4 border-t border-slate-800 text-xs text-rose-400 font-bold tracking-widest uppercase text-center hover:text-rose-300 transition-colors">Secure Logout</button>
+                        <div className="pt-6 border-t border-slate-800">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-2 text-center">CEO ACCESS</p>
+                            <button onClick={()=>setIsLoggedIn(false)} className="w-full flex items-center justify-center gap-2 py-2 text-xs text-rose-500 font-bold hover:text-rose-400 transition-colors tracking-tight"><SvgIcon name="X" size={14}/> Secure Logout</button>
+                        </div>
                     </aside>
 
                     {/* Main Workspace */}
@@ -220,100 +277,109 @@
                             <div className="flex-1 flex flex-col overflow-hidden animate-in">
                                 <header className="bg-white border-b px-8 py-6 flex justify-between items-center shrink-0 shadow-sm">
                                     <h2 className="text-2xl font-bold capitalize text-slate-900">{activeTab}</h2>
-                                    <button onClick={()=>activeTab==='users'?setShowUserModal(true):setShowCreateModal(true)} className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-md hover:bg-blue-700 transition-all"><SvgIcon name="Plus" size={16}/> Create {activeTab==='users'?'User':'Ad'}</button>
+                                    <button onClick={()=>activeTab==='users'?setShowUserModal(true):setShowCreateModal(true)} className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-md hover:bg-indigo-700 transition-all"><SvgIcon name="Plus" size={16}/> Create {activeTab==='users'?'User':'Ad'}</button>
                                 </header>
 
                                 <div className="flex-1 p-6 md:p-8 overflow-y-auto no-scrollbar">
                                     {activeTab === 'campaigns' && (
                                         <>
                                             <div className="bg-white p-4 rounded-2xl border border-slate-200 mb-6 flex items-center gap-4 shadow-sm">
-                                                <input placeholder="Filter client or ad title..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} className="input-field max-w-sm" />
+                                                <input placeholder="Filter client or ad..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} className="input-field max-w-sm" />
                                             </div>
                                             <div className="hidden md:block table-container">
                                                 <table className="w-full text-left">
                                                     <thead><tr><th>Client / Ad Title</th><th>Fulfillment Progress</th><th className="text-center">Leads Gen</th><th>Status</th><th className="text-right">Action</th></tr></thead>
                                                     <tbody>{filteredCampaigns.map(c=>(<tr key={c.id}>
                                                         <td><p className="font-bold text-slate-900">{c.client}</p><p className="text-xs text-slate-500 font-medium">{c.name}</p></td>
-                                                        <td className="w-56"><ProgressBar consumed={c.type==='Leads'?c.leadsGenerated:c.consumed} allotted={c.allotted} type={c.type} /></td>
+                                                        <td className="w-56"><ProgressBar consumed={c.consumed} allotted={c.allotted} type={c.type} /></td>
                                                         <td className="text-center font-black text-indigo-600 text-lg">{c.leadsGenerated}</td>
                                                         <td><div className="flex items-center gap-2"><div className="toggle-switch" data-state={c.status.toLowerCase()} onClick={()=>toggleStatus(c.id)}><span className="toggle-thumb"></span></div><span className="text-[10px] font-bold uppercase text-slate-500">{c.status}</span></div></td>
-                                                        <td className="text-right"><button onClick={()=>{setSelectedCampaign(c); setView('studio'); setPreviewTime(25);}} className="bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">AI Studio</button></td>
+                                                        <td className="text-right"><button onClick={()=>{setSelectedCampaign(c); setView('studio'); setPreviewTime(7);}} className="bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">AI Studio</button></td>
                                                     </tr>))}</tbody>
                                                 </table>
                                             </div>
-                                            <div className="md:hidden space-y-4">
-                                                {filteredCampaigns.map(c=>(<div key={c.id} className="mobile-card">
-                                                    <div className="flex justify-between items-start mb-4"><div><p className="font-bold text-lg">{c.client}</p><p className="text-xs text-slate-500">{c.name}</p></div><div className="toggle-switch" data-state={c.status.toLowerCase()} onClick={()=>toggleStatus(c.id)}><span className="toggle-thumb"></span></div></div>
-                                                    <ProgressBar consumed={c.type==='Leads'?c.leadsGenerated:c.consumed} allotted={c.allotted} type={c.type} />
-                                                    <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center"><span className="text-xs font-bold text-slate-400">Leads Generated</span><span className="font-black text-indigo-600">{c.leadsGenerated}</span></div>
-                                                    <button onClick={()=>{setSelectedCampaign(c); setView('studio'); setPreviewTime(25);}} className="w-full mt-4 bg-slate-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg">Open AI Studio</button>
-                                                </div>))}
-                                            </div>
                                         </>
-                                    )}
-
-                                    {activeTab === 'users' && (
-                                        <div className="table-container">
-                                            <table className="w-full text-left">
-                                                <thead><tr><th>Manager Name</th><th>Email Address</th><th>Assigned Store</th><th>Role</th></tr></thead>
-                                                <tbody>{users.map(u=>(<tr key={u.id}><td className="font-bold text-slate-900">{u.name}</td><td className="text-slate-500">{u.email}</td><td className="font-medium">{u.client}</td><td><span className="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">{u.role}</span></td></tr>))}</tbody>
-                                            </table>
-                                        </div>
-                                    )}
-
-                                    {activeTab === 'logs' && (
-                                        <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm">
-                                            {logs.map(log => (<div key={log.id} className="flex gap-4 items-start border-b border-slate-50 pb-4 last:border-0 last:pb-0">
-                                                <div className="w-2 h-2 mt-2 rounded-full bg-slate-300 shrink-0"></div>
-                                                <div><p className="text-sm font-semibold text-slate-800">{log.message}</p><p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{log.tag} • {new Date(log.time).toLocaleTimeString()}</p></div>
-                                            </div>))}
-                                        </div>
                                     )}
                                 </div>
                             </div>
                         ) : (
                             /* --- AI STUDIO VIEW --- */
                             <div className="flex-1 flex flex-col bg-white animate-in overflow-hidden">
-                                <header className="p-4 border-b flex justify-between items-center shrink-0">
-                                    <div className="flex items-center gap-4">
-                                        <button onClick={()=>setView('dashboard')} className="p-2 hover:bg-slate-100 rounded-full text-slate-600"><SvgIcon name="ChevronLeft" size={24}/></button>
-                                        <h3 className="font-black text-lg tracking-tight text-slate-900">{selectedCampaign?.client} Studio</h3>
+                                <header className="h-[72px] border-b border-slate-200 px-6 flex justify-between items-center shrink-0">
+                                    <div className="flex items-center gap-6">
+                                        <button onClick={()=>setView('dashboard')} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 border border-slate-200">
+                                            <SvgIcon name="ChevronLeft" size={20}/>
+                                        </button>
+                                        <div className="flex bg-slate-50 border border-slate-200 rounded-full p-1 gap-1">
+                                            {['GEMINI', 'CLAUDE', 'GPT'].map(m => (
+                                                <button key={m} onClick={()=>setSelectedModel(m)} className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${selectedModel === m ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}>
+                                                    <span className="flex items-center gap-1.5">{m === 'GEMINI' ? <SvgIcon name="Sparkles" size={12}/> : m === 'CLAUDE' ? <SvgIcon name="Cpu" size={12}/> : <SvgIcon name="Zap" size={12}/>} {m}</span>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest shadow-md transition-all">Deploy Changes</button>
+                                    <div className="flex items-center gap-3">
+                                        <button className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-700 flex items-center gap-2 hover:bg-slate-100 transition-all">
+                                            <SvgIcon name="Upload" size={14}/> Logo
+                                        </button>
+                                        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md transition-all">Deploy</button>
+                                    </div>
                                 </header>
-                                <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-                                    {/* Chat Pane */}
-                                    <div className="flex-1 flex flex-col border-r bg-slate-50">
-                                        <div className="flex-1 p-6 space-y-4 overflow-y-auto no-scrollbar">
-                                            <div className="chat-bubble-ai">Hi! I'm the Adviuz AI Architect. Tell me how to style this landing page for <b>{selectedCampaign?.client}</b>. I can write copy, set brand colors, and generate form fields.</div>
-                                            {chatHistory.map((m,i)=>(<div key={i} className={`flex ${m.role==='user'?'justify-end':'justify-start'}`}><div className={m.role==='user'?'chat-bubble-user':'chat-bubble-ai'}>{m.content}</div></div>))}
+
+                                <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-white">
+                                    <div className="flex-1 flex flex-col border-r border-slate-100">
+                                        <div className="flex-1 p-8 space-y-6 overflow-y-auto no-scrollbar bg-slate-50/30">
+                                            <div className="chat-bubble-ai">Hi! I'm the AI Architect ({selectedModel}). Ready to design for <b>{selectedCampaign?.region}</b>.</div>
+                                            {chatHistory.map((m,i)=>(<div key={i} className={`flex ${m.role==='user'?'justify-end':'justify-start'} animate-in`}>
+                                                <div className={m.role==='user'?'chat-bubble-user':'chat-bubble-ai'}>{m.content}</div>
+                                            </div>))}
                                             {isAiThinking && <div className="ai-loading-dots"><div className="dot"></div><div className="dot"></div><div className="dot"></div></div>}
                                             <div ref={chatEndRef} />
                                         </div>
-                                        <div className="p-6 bg-white border-t border-slate-200">
-                                            <div className="relative flex items-center max-w-2xl mx-auto shadow-sm">
-                                                <input onKeyDown={e=>{if(e.key==='Enter'){callAI(e.target.value); e.target.value=''}}} className="w-full pl-5 pr-14 py-4 bg-slate-50 border-2 border-transparent focus:border-blue-100 focus:bg-white outline-none rounded-2xl text-sm transition-all" placeholder="e.g. Set theme color to forest green and offer a free inspection..." />
-                                                <button className="absolute right-2 p-2.5 bg-blue-600 text-white rounded-xl hover:scale-105 transition-transform"><SvgIcon name="Send" size={18}/></button>
+                                        <div className="p-6 border-t border-slate-200 bg-white">
+                                            <div className="relative flex items-center max-w-3xl mx-auto">
+                                                <input 
+                                                    onKeyDown={e=>{if(e.key==='Enter'){callAI(e.target.value); e.target.value=''}}} 
+                                                    className="w-full pl-6 pr-14 py-4 bg-slate-50 border border-slate-200 focus:border-indigo-100 focus:bg-white outline-none rounded-full text-sm transition-all shadow-inner" 
+                                                    placeholder="Ask AI to design, write copy, or generate images..." 
+                                                />
+                                                <button className="absolute right-2 p-2.5 bg-indigo-600 text-white rounded-full hover:scale-105 transition-transform shadow-md">
+                                                    <SvgIcon name="Send" size={18}/>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Preview Pane */}
-                                    <div className="w-full md:w-[420px] bg-slate-100 flex flex-col items-center justify-center shrink-0 border-l p-8 overflow-y-auto no-scrollbar">
-                                        <div className="iphone-frame shadow-[0_30px_60px_-12px_rgba(0,0,0,0.25)]">
+                                    <div className="w-full md:w-[460px] bg-white flex flex-col items-center shrink-0 p-8 overflow-y-auto no-scrollbar border-l border-slate-100">
+                                        <div className="w-full flex justify-between items-center mb-6 px-4">
+                                            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Live Preview</span>
+                                            <button className="text-[10px] font-bold text-indigo-600 hover:underline">Test Link</button>
+                                        </div>
+
+                                        <div className="iphone-frame shadow-[0_40px_80px_-15px_rgba(0,0,0,0.15)]">
                                             <div className="iphone-notch"></div>
                                             <div className="timer-bar-preview">
                                                 <div className="timer-progress-fill transition-all duration-1000 ease-linear" style={{width: `${((25-previewTime)/25)*100}%`, backgroundColor: config.color}}></div>
                                             </div>
                                             <div className="ad-preview-scroll p-6 pt-12 text-center bg-white h-full flex flex-col">
-                                                <p className={`text-[10px] font-black mb-6 uppercase tracking-widest ${previewTime === 0 ? 'text-emerald-500':'text-slate-400 animate-pulse'}`}>{previewTime === 0 ? '✅ Offer Unlocked' : `Unlock in ${previewTime}s`}</p>
-                                                <div className="aspect-[4/5] rounded-2xl overflow-hidden mb-6 shadow-sm border border-slate-100"><img src={config.img} className="w-full h-full object-cover" alt="Preview"/></div>
-                                                <h4 className="font-black text-xl leading-tight mb-2 text-slate-900">{config.headline}</h4>
-                                                <p className="text-xs text-slate-600 leading-relaxed mb-8">{config.subtext}</p>
-                                                <div className="mt-auto">
-                                                    <div className="bg-slate-50 rounded-xl p-4 text-left border border-slate-100 mb-6 space-y-2">
-                                                        <div className="preview-form-input py-2">Full Name</div>
-                                                        <div className="preview-form-input py-2">Email</div>
+                                                <div className="mb-4">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Brand Logo</p>
+                                                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${previewTime === 0 ? 'text-emerald-500':'text-slate-300 animate-pulse'}`}>
+                                                        {previewTime === 0 ? '✅ UNLOCKED' : `WAIT ${previewTime}S TO UNLOCK`}
+                                                    </p>
+                                                </div>
+
+                                                <div className="aspect-[4/5] rounded-2xl overflow-hidden mb-6 shadow-sm border border-slate-100 bg-slate-50 relative group">
+                                                    <img src={config.img} className="w-full h-full object-cover" alt="Preview"/>
+                                                </div>
+
+                                                <h4 className="font-black text-2xl leading-tight mb-2 text-slate-900 capitalize tracking-tight">{config.headline}</h4>
+                                                <p className="text-sm text-slate-500 leading-relaxed mb-6 font-medium">{config.subtext}</p>
+                                                
+                                                <div className="mt-auto space-y-4">
+                                                    <div className="bg-slate-50 rounded-2xl p-4 text-center border border-slate-100">
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Call for Details</p>
+                                                        <p className="font-black text-indigo-600 text-lg" style={{color: config.color}}>1-800-555-0199</p>
                                                     </div>
                                                     <button disabled={previewTime > 0} className="w-full py-4 rounded-2xl font-black text-xs border-2 uppercase tracking-[0.1em] transition-all duration-500 shadow-md" style={{color: previewTime > 0 ? config.color : 'white', borderColor: config.color, backgroundColor: previewTime > 0 ? 'transparent' : config.color, borderStyle: previewTime > 0 ? 'dashed' : 'solid', opacity: previewTime > 0 ? 0.4 : 1}}>
                                                         {previewTime === 0 ? config.cta : `${config.cta} (Locked)`}
@@ -332,34 +398,15 @@
                         <div className="overlay animate-in"><div className="slide-panel flex flex-col">
                             <div className="flex justify-between items-center mb-8"><h2 className="text-2xl font-black text-slate-900">New Campaign</h2><button onClick={()=>setShowCreateModal(false)} className="p-2 text-slate-400 hover:text-slate-900"><SvgIcon name="X" size={20}/></button></div>
                             <div className="input-group">
-                                <label className="input-label">Assign to Store / Manager</label>
+                                <label className="input-label">Assign Store / Manager</label>
                                 <select value={newAd.client} onChange={e=>setNewAd({...newAd, client: e.target.value})} className="input-field appearance-none cursor-pointer">
                                     <option value="">-- Choose User --</option>
                                     {users.map(u=>(<option key={u.id} value={u.client}>{u.client} ({u.name})</option>))}
                                 </select>
                             </div>
-                            <div className="input-group"><label className="input-label">Campaign Title</label><input placeholder="e.g. Holiday Flash Sale" value={newAd.name} onChange={e=>setNewAd({...newAd, name:e.target.value})} className="input-field" /></div>
-                            <div className="input-group">
-                                <label className="input-label">Billing Model</label>
-                                <div className="flex bg-slate-100 p-1 rounded-xl">
-                                    <button onClick={()=>setNewAd({...newAd, type:'Views'})} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${newAd.type==='Views'?'bg-white shadow-sm text-blue-600':'text-slate-500'}`}>Guaranteed Views</button>
-                                    <button onClick={()=>setNewAd({...newAd, type:'Leads'})} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${newAd.type==='Leads'?'bg-white shadow-sm text-blue-600':'text-slate-500'}`}>Guaranteed Leads</button>
-                                </div>
-                            </div>
+                            <div className="input-group"><label className="input-label">Campaign Title</label><input placeholder="e.g. Laser Hair Removal Special" value={newAd.name} onChange={e=>setNewAd({...newAd, name:e.target.value})} className="input-field" /></div>
                             <div className="input-group"><label className="input-label">Allotment Count</label><input type="number" value={newAd.allotted} onChange={e=>setNewAd({...newAd, allotted:e.target.value})} className="input-field font-mono font-bold" /></div>
-                            <button onClick={()=>{setCampaigns([...campaigns, {...newAd, id:Date.now(), status:'Active', consumed:0, leadsGenerated:0}]); setLogs([{id:Date.now(), tag:'Campaign', message:`Ad "${newAd.name}" created`, client:newAd.client, time:new Date()}, ...logs]); setShowCreateModal(false);}} className="w-full mt-auto bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition-all">Create Container</button>
-                        </div></div>
-                    )}
-
-                    {/* PROVISION USER MODAL */}
-                    {showUserModal && (
-                        <div className="overlay-center animate-in"><div className="bg-white p-10 rounded-[2.5rem] w-full max-w-sm shadow-2xl relative">
-                            <button onClick={()=>setShowUserModal(false)} className="absolute top-6 right-6 text-slate-300 hover:text-slate-900"><SvgIcon name="X" size={20}/></button>
-                            <h2 className="text-xl font-black text-center mb-8">Provision Client User</h2>
-                            <input placeholder="Manager Name" onChange={e=>setNewUser({...newUser, name:e.target.value})} className="input-field mb-4" />
-                            <input placeholder="Email Address" onChange={e=>setNewUser({...newUser, email:e.target.value})} className="input-field mb-4" />
-                            <input placeholder="Store / Store Name" onChange={e=>setNewUser({...newUser, client:e.target.value})} className="input-field mb-8" />
-                            <button onClick={()=>{setUsers([...users, {...newUser, id:Date.now()}]); setLogs([{id:Date.now(), tag:'System', message:`User ${newUser.name} provisioned`, client:newUser.client, time:new Date()}, ...logs]); setShowUserModal(false);}} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-md hover:bg-blue-700 transition-all">Add to Directory</button>
+                            <button onClick={()=>{setCampaigns([...campaigns, {...newAd, id:Date.now(), status:'Active', consumed:0, leadsGenerated:0}]); setShowCreateModal(false);}} className="w-full mt-auto bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition-all">Create Allotment</button>
                         </div></div>
                     )}
                 </div>
